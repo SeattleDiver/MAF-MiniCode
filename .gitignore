@@ -427,3 +427,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Project specific files
+video-plan.md
+TestResults/
+verification/
+CLAUDE.mdf
