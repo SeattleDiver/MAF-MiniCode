@@ -109,11 +109,11 @@ The agent continues working until it either successfully completes the task, det
 
 ## Course Delivery Structure
 
-There is **one** MiniCode solution, at the repository root, and it grows as the series progresses. The viewer clones the repository once and follows along; they never retype earlier work and never copy a folder.
+Every Module folder under `Projects/` is a complete, standalone, runnable solution — a cumulative snapshot of MiniCode at the *end* of that lesson. To move to the next Module, the viewer opens the previous Module's folder, already complete, and builds up to what the next folder contains; they never retype earlier work and never strip anything out to get to a starting point. Module 1 is the one exception: it is lesson-only (design work, no code), so Module 2 starts from an empty project.
 
-A Module is delivered as a folder containing **only its lesson** — `ModuleNN-TitleInPascalCase/ModuleNN - Title.md`. Module folders hold no `.slnx`, no `.csproj` and no source, because the source lives in the one solution at the root. No Module's code depends on anything a later Module introduces.
+A Module folder holds its lesson alongside that snapshot — `Projects/ModuleNN-TitleInPascalCase/ModuleNN - Title.md`, `MiniCode.slnx`, and `src/MiniCode.Cli/ .Agent/ .Tools/ .Workspace/ .Infrastructure/`. No Module's code depends on anything a later Module introduces.
 
-The `PhaseN-Capstone-Title` folders are the **only** full snapshots: each holds a complete, runnable copy of the solution as that Phase left it, so a viewer joining mid-series can start there, and exercises the tool end-to-end at the stated version number.
+The `Projects/PhaseN-Capstone-Title/` folders are full snapshots too, taken at each Phase boundary: each holds a complete, runnable copy of the solution as that Phase left it, so a viewer joining mid-series can start there, and exercises the tool end-to-end at the stated version number.
 
 ### Lesson format
 
@@ -122,10 +122,10 @@ Each lesson is sized for a single video:
 - **Under 300 lines** of written material.
 - **At most 125 lines of C# shown** — what can be presented at a reasonable pace on camera.
 - **Core Concepts is written to work as a slide** — the idea in plain language, no code, presented away from the editor.
-- **Whatever exceeds the code budget becomes an Exercise** with acceptance criteria stated in prose. The reference implementation is in the root solution, so a viewer can compare their attempt against it.
+- **Whatever exceeds the code budget becomes an Exercise** with acceptance criteria stated in prose. Where the series itself needs that code later, the Module that supplies a reference implementation is named; otherwise the acceptance criteria are the specification and no reference implementation is promised.
 - **Each Module demonstrates the happy path.** Failure modes get a sentence where they explain a design choice; the demonstration is the success case.
 
-**Unit tests are not part of the course.** A private verification harness exists so the presented code can be trusted, but no test code appears in any lesson and no test project appears in `MiniCode.slnx` or in a Capstone snapshot.
+**Unit tests are not part of the course.** A private verification harness in `verification/` exists so the presented code can be trusted, but no test code appears in any lesson and no test project appears in any Module's `MiniCode.slnx` or in a Capstone snapshot.
 
 ### Modules split across two videos
 
@@ -144,25 +144,27 @@ Four Modules cannot fit their topic list inside one lesson's budget and are deli
 D:\MAF-MiniCode\
    CLAUDE.md
    syllabus.md
+   video-plan.md
+   README.md
    docs\
-   MiniCode.slnx                                the one solution a viewer opens
-   global.json
-   AGENTS.md
-   src\MiniCode.Cli\ .Agent\ .Tools\ .Workspace\ .Infrastructure\
    verification\                                our harness - never presented
         MiniCode.Verify.slnx
         MiniCode.Tests\
-   Module01-UnderstandingCodingAgents\
-        Module01 - Understanding Coding Agents.md
-   Module02-MicrosoftAgentFrameworkFundamentals\
-        Module02 - Microsoft Agent Framework Fundamentals.md
-   ...                                          lesson only, no code
-   Phase1-Capstone-RepositoryExplorer\
-        MiniCode.slnx
-        src\MiniCode.Cli\ .Agent\ .Tools\ .Workspace\ .Infrastructure\
-        Phase1 Capstone - Repository Explorer.md
-   ...
-   Module19-CapstoneProject\
+        global.json
+   Projects\
+        Module01-UnderstandingCodingAgents\
+             Module01 - Understanding Coding Agents.md    lesson only, no code
+        Module02-MicrosoftAgentFrameworkFundamentals\
+             Module02 - Microsoft Agent Framework Fundamentals.md
+             MiniCode.slnx                                a complete solution, at end-of-lesson state
+             src\MiniCode.Cli\ .Agent\ .Tools\ .Workspace\ .Infrastructure\
+        ...                                               each folder a cumulative snapshot
+        Phase1-Capstone-RepositoryExplorer\
+             MiniCode.slnx
+             src\MiniCode.Cli\ .Agent\ .Tools\ .Workspace\ .Infrastructure\
+             Phase1 Capstone - Repository Explorer.md
+        ...
+        Module19-CapstoneProject\
 ```
 
 ## Module 1 — Understanding Coding Agents
@@ -245,9 +247,6 @@ src/
    MiniCode.Tools/
    MiniCode.Workspace/
    MiniCode.Infrastructure/
-
-tests/
-   MiniCode.Tests/
 ```
 
 Responsibilities:
