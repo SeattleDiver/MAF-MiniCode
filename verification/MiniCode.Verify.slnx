@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="../Phase2-Capstone-PlanningAgent/src/MiniCode.Agent/MiniCode.Agent.csproj" />
+    <Project Path="../Phase2-Capstone-PlanningAgent/src/MiniCode.Cli/MiniCode.Cli.csproj" />
+    <Project Path="../Phase2-Capstone-PlanningAgent/src/MiniCode.Infrastructure/MiniCode.Infrastructure.csproj" />
+    <Project Path="../Phase2-Capstone-PlanningAgent/src/MiniCode.Tools/MiniCode.Tools.csproj" />
+    <Project Path="../Phase2-Capstone-PlanningAgent/src/MiniCode.Workspace/MiniCode.Workspace.csproj" />
+  </Folder>
+  <Folder Name="/verification/">
+    <Project Path="MiniCode.Tests/MiniCode.Tests.csproj" />
+  </Folder>
+</Solution>
