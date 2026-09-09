@@ -16,9 +16,10 @@
 
   <!-- Points at the newest Module folder. Update these paths per Module. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Agent\MiniCode.Agent.csproj" />
-    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Tools\MiniCode.Tools.csproj" />
-    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Workspace\MiniCode.Workspace.csproj" />
+    <ProjectReference Include="..\..\Projects\Phase4-Capstone-DeveloperCli\src\MiniCode.Agent\MiniCode.Agent.csproj" />
+    <ProjectReference Include="..\..\Projects\Phase4-Capstone-DeveloperCli\src\MiniCode.Cli\MiniCode.Cli.csproj" />
+    <ProjectReference Include="..\..\Projects\Phase4-Capstone-DeveloperCli\src\MiniCode.Tools\MiniCode.Tools.csproj" />
+    <ProjectReference Include="..\..\Projects\Phase4-Capstone-DeveloperCli\src\MiniCode.Workspace\MiniCode.Workspace.csproj" />
   </ItemGroup>
 
 </Project>

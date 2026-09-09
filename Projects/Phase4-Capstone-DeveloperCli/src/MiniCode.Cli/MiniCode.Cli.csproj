@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>MiniCode.Cli</RootNamespace>
+    <AssemblyName>MiniCode.Cli</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>minicode</ToolCommandName>
+    <PackageId>MiniCode</PackageId>
+    <Version>0.4.0</Version>
+    <Description>A coding agent for the terminal, built on Microsoft Agent Framework.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MiniCode.Agent\MiniCode.Agent.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MiniCode.Agent/MiniCode.Agent.csproj" />
+    <Project Path="src/MiniCode.Cli/MiniCode.Cli.csproj" />
+    <Project Path="src/MiniCode.Infrastructure/MiniCode.Infrastructure.csproj" />
+    <Project Path="src/MiniCode.Tools/MiniCode.Tools.csproj" />
+    <Project Path="src/MiniCode.Workspace/MiniCode.Workspace.csproj" />
+  </Folder>
+</Solution>

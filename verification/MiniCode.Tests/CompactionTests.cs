@@ -27,6 +27,20 @@ public sealed class CompactionTests
     }
 
     [Fact]
+    public void ARunCommandCallLeavesAWorkingNote()
+    {
+        WorkingState state = WorkingState.From(
+        [
+            new ChatMessage(ChatRole.Assistant, [new FunctionCallContent("c1", "run_command",
+                new Dictionary<string, object?> { ["command"] = "dotnet", ["arguments"] = new[] { "build" } })]),
+        ]);
+
+        WorkingNote note = Assert.Single(state.Notes, n => n.Kind == WorkingNoteKind.CommandRun);
+        Assert.Contains("dotnet", note.Text);
+        Assert.Contains("build", note.Text);
+    }
+
+    [Fact]
     public void ToolOutputIsDiscardedRatherThanSummarised()
     {
         WorkingState state = WorkingState.From(
