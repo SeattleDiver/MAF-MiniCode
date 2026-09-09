@@ -12,6 +12,21 @@ public sealed class CompactionTests
             new Dictionary<string, object?> { ["path"] = path })]);
 
     [Fact]
+    public void AModifiedFileIsNotTheSameFactAsAReadFile()
+    {
+        WorkingState state = WorkingState.From(
+        [
+            new ChatMessage(ChatRole.Assistant, [new FunctionCallContent("c1", "read_file",
+                new Dictionary<string, object?> { ["path"] = "src/A.cs" })]),
+            new ChatMessage(ChatRole.Assistant, [new FunctionCallContent("c2", "edit_file",
+                new Dictionary<string, object?> { ["path"] = "src/A.cs" })]),
+        ]);
+
+        WorkingNote note = Assert.Single(state.Notes, n => n.Kind == WorkingNoteKind.FileState);
+        Assert.Equal("src/A.cs (modified)", note.Text);
+    }
+
+    [Fact]
     public void ToolOutputIsDiscardedRatherThanSummarised()
     {
         WorkingState state = WorkingState.From(

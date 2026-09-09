@@ -90,7 +90,7 @@ public sealed class ReadAccessTests : IDisposable
     {
         var (ws, files) = Build();
         IReadOnlyList<AITool> tools = new ToolCatalog(ws, files, new RepositoryInspector(ws), new DirectToolInvoker()).GetTools();
-        Assert.Equal(5, tools.Count);
+        Assert.Equal(7, tools.Count);
         Assert.All(tools, t => Assert.IsType<InterceptedFunction>(t));
     }
 

@@ -1,6 +1,6 @@
 # Course Syllabus — Building a Mini Claude Code–Style Agent with Microsoft Agent Framework
 
-*Consolidated from `MiniCode_MAF_Course_Conversation_and_Syllabus 2.md`, incorporating the follow-up revisions (session summarization/context compaction, `/plan` and `/review` operating modes, and explicit planning/task state) into the module structure.*
+*The single source of truth for Module numbering, titles, topics, labs, and scope. Where a Module is split across two videos, both parts share its number, scope and Phase.*
 
 ## Course Overview
 
@@ -278,6 +278,10 @@ Establish boundaries before allowing modifications.
 - `.gitignore`
 - Protecting files outside the repository
 
+### Delivered as an exercise
+
+**Binary files** and **`.gitignore`** are specified in the lesson and implemented by the viewer; the presented code covers the path boundary itself.
+
 ### Lab
 
 Implement:
@@ -331,6 +335,10 @@ README.md
 ```
 
 Identify solution structure, projects, references, tests, target frameworks, and NuGet dependencies.
+
+### Delivered as an exercise
+
+Parsing legacy **`*.sln`**, and inheritance from **`Directory.Build.props`** / **`Directory.Packages.props`**. The presented code parses `*.slnx` and `*.csproj`, and recognises the remaining files by presence.
 
 ### Lab
 
@@ -410,6 +418,10 @@ Reason
 
 instead of reading the entire repository. For long-running sessions, periodically compact the conversation: summarize completed work, keep track of modified files and unresolved tasks, and discard tool output that is no longer relevant.
 
+### Delivered as an exercise
+
+**Tool-result compression** — the presented code discards obsolete tool output rather than summarising it; replacing it with a one-line summary is the viewer's.
+
 ### Lab
 
 Implement context-aware repository exploration, then simulate a long-running session and implement a compaction routine that preserves task state across the compaction boundary.
@@ -458,7 +470,7 @@ Continue / Replan
 ### Lab
 
 ```text
-> /plan Add caching to CustomerService
+> Add caching to CustomerService.
 
 Agent:
 1. Inspect CustomerService
@@ -473,6 +485,8 @@ No files have been modified.
 ```
 
 Implement task-plan generation and task-state tracking without allowing any file modification.
+
+Planning is demonstrated inline in the chat loop. Module 16 turns it into an explicit `/plan` mode over the same `PlanAsync`; slash commands do not exist before then.
 
 ## Module 10 — Safe File Editing
 
@@ -494,6 +508,10 @@ Prefer targeted edits over rewriting complete files whenever possible.
 - Line endings
 - Creating new files
 - Showing modifications
+
+### Delivered as an exercise
+
+**File encoding** and **line endings** are preserved by the viewer's implementation. **Showing modifications** is presented as a changed-line report; rendering it as a diff is the viewer's.
 
 ### Lab
 
