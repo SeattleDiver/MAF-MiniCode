@@ -16,9 +16,9 @@
 
   <!-- Points at the newest Module folder. Update these paths per Module. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Module10-SafeFileEditing\src\MiniCode.Agent\MiniCode.Agent.csproj" />
-    <ProjectReference Include="..\..\Module10-SafeFileEditing\src\MiniCode.Tools\MiniCode.Tools.csproj" />
-    <ProjectReference Include="..\..\Module10-SafeFileEditing\src\MiniCode.Workspace\MiniCode.Workspace.csproj" />
+    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Agent\MiniCode.Agent.csproj" />
+    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Tools\MiniCode.Tools.csproj" />
+    <ProjectReference Include="..\..\Projects\Module10-SafeFileEditing\src\MiniCode.Workspace\MiniCode.Workspace.csproj" />
   </ItemGroup>
 
 </Project>

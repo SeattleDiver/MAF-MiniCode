@@ -31,33 +31,34 @@ Every rule below that says "include X" is bounded by the budgets in this section
 
 # REPOSITORY LAYOUT
 
-**Every Module folder is a complete, standalone, runnable solution** — the state of MiniCode at the *end* of that lesson. There is no solution at the repository root.
+**Every Module folder is a complete, standalone, runnable solution** — the state of MiniCode at the *end* of that lesson. There is no solution at the repository root. All Module and Phase Capstone folders live under `Projects/`.
 
 ```text
-ModuleNN-TitleInPascalCase/
-    ModuleNN - Title.md              the lesson
-    MiniCode.slnx                    a complete solution, at end-of-lesson state
-    src/MiniCode.Cli/                terminal interface
-    src/MiniCode.Agent/              MAF configuration, agent loop, context, planning
-    src/MiniCode.Tools/              tools exposed to the model
-    src/MiniCode.Workspace/          repository boundaries and filesystem access
-    src/MiniCode.Infrastructure/     shell, Git, config, approval, telemetry
+Projects/
+    ModuleNN-TitleInPascalCase/
+        ModuleNN - Title.md              the lesson
+        MiniCode.slnx                    a complete solution, at end-of-lesson state
+        src/MiniCode.Cli/                terminal interface
+        src/MiniCode.Agent/              MAF configuration, agent loop, context, planning
+        src/MiniCode.Tools/              tools exposed to the model
+        src/MiniCode.Workspace/          repository boundaries and filesystem access
+        src/MiniCode.Infrastructure/     shell, Git, config, approval, telemetry
 
-PhaseN-Capstone-TitleInPascalCase/
-    PhaseN Capstone - Title.md
-    MiniCode.slnx, src/             same shape; the Phase's consolidated state
+    PhaseN-Capstone-TitleInPascalCase/
+        PhaseN Capstone - Title.md
+        MiniCode.slnx, src/             same shape; the Phase's consolidated state
 
 verification/                        OUR harness — never presented, never shipped
     MiniCode.Verify.slnx
     MiniCode.Tests/
 
 syllabus.md, video-plan.md,          repository root
-README.md, CLAUDE.md
+README.md, CLAUDE.md, Projects/
 ```
 
-1. **Folders are cumulative snapshots, and each one stands alone.** Open `ModuleNN` in VS2026 with no other folder present and it restores, builds and runs. The viewer never retypes earlier work; I never delete anything to get to a starting point.
-2. **The recording workflow this exists to serve.** To record Module N, open **Module N−1's** folder — already complete, nothing to strip out — and build up to what Module N's folder contains. Module N's lesson names that starting folder in its Prerequisites. Module 2 starts from an empty project.
-3. **Generating Module N means: copy Module N−1's solution into `ModuleNN-Title/`, apply this Module's changes, then write the lesson.** Files this Module does not touch stay byte-for-byte identical to the previous folder, so a viewer diffing two folders sees only what the lesson explains.
+1. **Folders are cumulative snapshots, and each one stands alone.** Open `Projects/ModuleNN-Title/` in VS2026 with no other folder present and it restores, builds and runs. The viewer never retypes earlier work; I never delete anything to get to a starting point.
+2. **The recording workflow this exists to serve.** To record Module N, open **Module N−1's** folder under `Projects/` — already complete, nothing to strip out — and build up to what Module N's folder contains. Module N's lesson names that starting folder in its Prerequisites. Module 2 starts from an empty project.
+3. **Generating Module N means: copy Module N−1's solution into `Projects/ModuleNN-Title/`, apply this Module's changes, then write the lesson.** Files this Module does not touch stay byte-for-byte identical to the previous folder, so a viewer diffing two folders sees only what the lesson explains.
 4. **Module folders never contain a test project.** Neither do Phase Capstones. See rule 28. A Module folder may hold the slide deck for that lesson and one small fixture file if its lab needs one; those are lesson assets, not part of the solution.
 5. Module folders are named `ModuleNN-TitleInPascalCase` (zero-padded, hyphen separator, no underbars). Phase Capstone folders are named `PhaseN-Capstone-TitleInPascalCase`.
 6. Never leave `bin/`, `obj/`, `.vs/` or `TestResults/` anywhere.
@@ -119,7 +120,7 @@ README.md, CLAUDE.md
 
 24. Each Module folder contains exactly one lesson `.md`, named `ModuleNN - Title As Written In Syllabus.md`. Each Phase Capstone folder contains one `PhaseN Capstone - Title.md`. Where a Module title already ends in `.md`, that suffix serves as the extension — never a doubled `.md.md`.
 25. Every code block that shows a complete file must be preceded by a heading containing that file's exact repo-relative path in backticks, e.g. ``### `src/MiniCode.Workspace/Workspace.cs` ``. Excerpts shorter than a whole file must say which file they come from.
-26. `syllabus.md`, `video-plan.md`, `README.md` and this file live at the repository root. Anything else that is not lesson content goes in `docs/`.
+26. `syllabus.md`, `video-plan.md`, `README.md` and this file live at the repository root. Module and Phase Capstone folders live under `Projects/`. Anything else that is not lesson content goes in `docs/`.
 27. No underscores in any filename or folder name.
 
 ---
@@ -127,7 +128,7 @@ README.md, CLAUDE.md
 # VERIFICATION
 
 28. **Unit tests are ours, not the viewer's.** They exist so I can trust the code I present; they are never part of the course.
-    - Tests live in `verification/MiniCode.Tests/`, referenced only by `verification/MiniCode.Verify.slnx`, which points at the most recent Module folder. A Module folder’s own `MiniCode.slnx` contains only that Module’s `src/` projects.
+    - Tests live in `verification/MiniCode.Tests/`, referenced only by `verification/MiniCode.Verify.slnx`, which points at the most recent Module folder under `Projects/`. A Module folder’s own `MiniCode.slnx` contains only that Module’s `src/` projects.
     - **Never show test code in a lesson.** No test file appears under a heading, in a code block, or in an inventory. Never cite a test as evidence to the viewer; if a claim matters, demonstrate it in Expected Output instead.
     - Module folders and Phase Capstones contain `src/` only. No `verification/`, no test project, ever.
     - Keep the harness small — it is a gate, not a deliverable. A handful of tests per Module covering what would be embarrassing to get wrong on camera is enough.
@@ -147,7 +148,7 @@ README.md, CLAUDE.md
 
 # HOW I WILL PROMPT YOU
 
-30. **"Generate Module N"** — copy Module N−1's solution into `ModuleNN-Title/`, apply this Module's changes, then write `ModuleNN-Title/ModuleNN - Title.md`. Do not generate multiple Modules unless I ask.
-31. **"Generate Phase N Capstone"** — copy the preceding Module's solution into `PhaseN-Capstone-Title/`, consolidate it, and write its lesson.
+30. **"Generate Module N"** — copy Module N−1's solution into `Projects/ModuleNN-Title/`, apply this Module's changes, then write `Projects/ModuleNN-Title/ModuleNN - Title.md`. Do not generate multiple Modules unless I ask.
+31. **"Generate Phase N Capstone"** — copy the preceding Module's solution into `Projects/PhaseN-Capstone-Title/`, consolidate it, and write its lesson.
 32. **Generate strictly in series order, one unit at a time**: Modules 1–6 → Phase 1 Capstone → Modules 7–9 → Phase 2 Capstone → Modules 10–13 → Phase 3 Capstone → Modules 14–18 → Phase 4 Capstone → Module 19. Never start a unit before the previous one builds clean — each Module is copied from the previous one, so a fault in an unverified predecessor propagates forward through every folder after it.
 33. Parallel agents are fine **within** one unit (design, code, lesson, tests) provided one agent owns the merge and the verification. Never run two agents on different units at once. Work that touches no unit in progress — a docs audit, a syllabus revision — may run in parallel if told exactly which files it may touch.
