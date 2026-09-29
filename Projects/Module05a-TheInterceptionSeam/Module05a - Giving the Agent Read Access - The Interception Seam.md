@@ -18,7 +18,7 @@ One new package, in `MiniCode.Tools`:
 
 | Package | Version | Why |
 |---|---|---|
-| `Microsoft.Extensions.AI` | 10.9.0 | `AIFunctionFactory`, `AIFunction`, `AITool`, `DelegatingAIFunction` |
+| `Microsoft.Extensions.AI` | 10.10.0 | `AIFunctionFactory`, `AIFunction`, `AITool`, `DelegatingAIFunction` |
 
 Note it goes in `MiniCode.Tools`, not `MiniCode.Agent`. Tool *definitions* are the Tools project's job.
 

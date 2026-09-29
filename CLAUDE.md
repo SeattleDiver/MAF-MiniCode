@@ -97,7 +97,7 @@ README.md, CLAUDE.md, Projects/
     - `ChatClientAgent` wires function invocation itself — do **not** add `UseFunctionInvocation()` to the `IChatClient`.
     - `AIFunction.InvokeAsync` is **not** virtual; the extension point is `protected virtual InvokeCoreAsync`, and `Microsoft.Extensions.AI` ships a concrete `DelegatingAIFunction` to derive from.
     - With `FunctionInvokingChatClient`'s defaults a throwing tool reaches the model as the bare string `Error: Function failed.`, and consecutive errors end the run — hence the never-throw rule at the invoker.
-    - MAF 1.20.0 ships `Microsoft.Agents.AI.Compaction`, unused here because its index type requires a `Microsoft.ML.Tokenizers` dependency this course does not take.
+    - MAF 1.22.0 ships `Microsoft.Agents.AI.Compaction`, unused here because its index type requires a `Microsoft.ML.Tokenizers` dependency this course does not take.
     - `dotnet test --nologo` reports "Zero tests ran" with exit code 5 on the .NET 10 SDK. Use plain `dotnet test`.
     - `xunit.v3` needs `global.json` selecting `Microsoft.Testing.Platform`, and no `Microsoft.NET.Test.Sdk`.
 

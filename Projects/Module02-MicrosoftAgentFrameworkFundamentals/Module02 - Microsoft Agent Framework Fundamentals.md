@@ -23,8 +23,8 @@ Two packages, both in `src/MiniCode.Cli`:
 
 | Package | Version | Why |
 |---|---|---|
-| `Microsoft.Agents.AI` | 1.20.0 | `AIAgent`, `ChatClientAgent`, `AgentSession` |
-| `Microsoft.Extensions.AI.OpenAI` | 10.9.0 | `AsIChatClient()` — adapts the OpenAI SDK to `IChatClient` |
+| `Microsoft.Agents.AI` | 1.22.0 | `AIAgent`, `ChatClientAgent`, `AgentSession` |
+| `Microsoft.Extensions.AI.OpenAI` | 10.10.0 | `AsIChatClient()` — adapts the OpenAI SDK to `IChatClient` |
 
 Set the key before running:
 
@@ -75,8 +75,8 @@ $env:OPENAI_API_KEY = "sk-..."
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Agents.AI" Version="1.20.0" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.9.0" />
+    <PackageReference Include="Microsoft.Agents.AI" Version="1.22.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.10.0" />
   </ItemGroup>
 
 </Project>

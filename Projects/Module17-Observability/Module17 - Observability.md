@@ -14,7 +14,7 @@ Fifth Module of Phase 4. Ships as part of **Phase 4 Capstone — Developer CLI (
 
 ## Setup
 
-`Microsoft.Extensions.Logging` in `MiniCode.Agent`, `Microsoft.Extensions.Logging.Abstractions` in `MiniCode.Infrastructure` — both pinned at `10.0.11`, the exact version already resolving transitively through `Microsoft.Extensions.AI.OpenAI`. No other package changes.
+`Microsoft.Extensions.Logging` in `MiniCode.Agent`, `Microsoft.Extensions.Logging.Abstractions` in `MiniCode.Infrastructure` — both pinned at `10.0.12`, the exact version already resolving transitively through `Microsoft.Extensions.AI.OpenAI`. No other package changes.
 
 ## Core Concepts
 

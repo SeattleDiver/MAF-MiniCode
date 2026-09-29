@@ -16,7 +16,7 @@ Ships as part of **Phase 2 Capstone — Planning Agent (v0.2)**.
 
 Nothing new.
 
-> **Currency note.** `AgentSession` does **not** expose its messages as a property — it has `StateBag` and `GetService`, and nothing else. History is reached through the extension methods `TryGetInMemoryChatHistory(out List<ChatMessage>)` and `SetInMemoryChatHistory(...)` in `Microsoft.Agents.AI`. Note also that MAF 1.20.0 ships a whole `Microsoft.Agents.AI.Compaction` namespace with ready-made strategies; MiniCode does not use it, because its index type requires a `Microsoft.ML.Tokenizers` dependency and because configuring a strategy would teach configuration rather than the decision this Module is about.
+> **Currency note.** `AgentSession` does **not** expose its messages as a property — it has `StateBag` and `GetService`, and nothing else. History is reached through the extension methods `TryGetInMemoryChatHistory(out List<ChatMessage>)` and `SetInMemoryChatHistory(...)` in `Microsoft.Agents.AI`. Note also that MAF 1.22.0 ships a whole `Microsoft.Agents.AI.Compaction` namespace with ready-made strategies; MiniCode does not use it, because its index type requires a `Microsoft.ML.Tokenizers` dependency and because configuring a strategy would teach configuration rather than the decision this Module is about.
 
 ## Core Concepts
 
