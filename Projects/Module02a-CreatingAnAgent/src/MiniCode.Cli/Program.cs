@@ -2,8 +2,8 @@
 // MiniCode - a single file, on purpose
 //
 // An IChatClient, a ChatClientAgent wrapped around it, an AgentSession that
-// remembers the conversation, and a streaming console loop. The next Module
-// splits these four jobs across real projects.
+// remembers the conversation, and a streaming console loop. Module 3 splits
+// these four jobs across real projects.
 // -----------------------------------------------------------------------------
 
 using Microsoft.Agents.AI;

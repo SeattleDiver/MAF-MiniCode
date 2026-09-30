@@ -1,4 +1,4 @@
-# Module 2 — Microsoft Agent Framework Fundamentals
+# Module 2a — Microsoft Agent Framework Fundamentals: Creating an Agent
 
 ## Project Overview
 
@@ -11,7 +11,7 @@ We build the first running piece of MiniCode: a console app that connects to Ope
 
 Module 1's mental model — the reason → act → observe loop, and the idea that a coding agent is mostly harness rather than model. Nothing else. This is the first code Module, so there is nothing carried forward.
 
-This code becomes the CLI layer of the solution designed in Module 3, and ships as part of **Phase 1 Capstone — Repository Explorer (v0.1)**.
+Module 2b moves the model connection behind a factory. This code becomes the CLI layer of the solution designed in Module 3, and ships as part of **Phase 1 Capstone — Repository Explorer (v0.1)**.
 
 ## Setup
 
@@ -38,7 +38,7 @@ $env:OPENAI_API_KEY = "sk-..."
 
 **Four objects, and each one has exactly one job.** Almost all of MAF's surface area comes down to these, and every later Module either wraps one or feeds one.
 
-**`IChatClient` — the model, behind an abstraction.** This is the provider boundary. It comes from `Microsoft.Extensions.AI`, not from MAF, and it knows nothing about agents. Ours wraps the OpenAI SDK, and that is the *only* place in the whole course that OpenAI is named. Swapping providers later is a one-line change here.
+**`IChatClient` — the model, behind an abstraction.** This is the provider boundary. It comes from `Microsoft.Extensions.AI`, not from MAF, and it knows nothing about agents. Ours wraps the OpenAI SDK, and that is the *only* place in the whole course that OpenAI is named. Module 2b turns swapping providers into a one-line change.
 
 **`ChatClientAgent` — the model plus a role.** An `IChatClient` answers a list of messages. An agent has an identity, standing instructions, and the ability to hold tools. `ChatClientAgent` is the adapter that turns the former into the latter, and it is the `AIAgent` MiniCode uses for the rest of the series. There is only ever one agent in this course.
 
@@ -46,7 +46,7 @@ $env:OPENAI_API_KEY = "sk-..."
 
 **Streaming — because waiting feels broken.** A coding agent may think for many seconds. `RunStreamingAsync` yields text as the model produces it, so the user sees progress immediately. The non-streaming `RunAsync` exists and returns everything at once; for an interactive tool, streaming is the right default and we use it from the start.
 
-**Where the key comes from.** The API key is read from the environment, never hardcoded and never committed. Right now that read happens inline in `Program.cs`. Module 3 moves it behind a single configuration type so that exactly one place in the solution touches a credential — but the rule starts here.
+**Where the key comes from.** The API key is read from the environment, never hardcoded and never committed. Right now that read happens inline in `Program.cs`. Module 2b moves it behind a single factory type so that exactly one place in the solution touches a credential — but the rule starts here.
 
 ## The Code
 
@@ -89,8 +89,8 @@ $env:OPENAI_API_KEY = "sk-..."
 // MiniCode - a single file, on purpose
 //
 // An IChatClient, a ChatClientAgent wrapped around it, an AgentSession that
-// remembers the conversation, and a streaming console loop. The next Module
-// splits these four jobs across real projects.
+// remembers the conversation, and a streaming console loop. Module 3 splits
+// these four jobs across real projects.
 // -----------------------------------------------------------------------------
 
 using Microsoft.Agents.AI;
