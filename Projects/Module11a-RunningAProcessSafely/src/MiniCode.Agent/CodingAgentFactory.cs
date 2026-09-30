@@ -1,31 +1,21 @@
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using MiniCode.Tools;
-using OpenAI;
-using OpenAI.Chat;
 
 namespace MiniCode.Agent;
 
 /// <summary>
-/// The composition root: the one place that names OpenAI, reads the API key, and
-/// assembles the agent with its tools.
+/// The composition root: the one place that assembles the agent with its tools.
+/// The model comes from <see cref="ChatClientFactory"/>, which alone knows the provider.
 /// </summary>
 public static class CodingAgentFactory
 {
-    private const string ModelId = "gpt-4.1-mini";
-    private const string ApiKeyVariable = "OPENAI_API_KEY";
-
     /// <summary>Builds a ready-to-use agent over the given workspace root.</summary>
     public static async Task<ICodingAgent> CreateAsync(
         string workspaceRoot,
         CancellationToken cancellationToken = default)
     {
-        string apiKey = Environment.GetEnvironmentVariable(ApiKeyVariable)
-            ?? throw new InvalidOperationException(
-                $"{ApiKeyVariable} is not set. Set it before running MiniCode.");
-
-        ChatClient openAiClient = new OpenAIClient(apiKey).GetChatClient(ModelId);
-        IChatClient chatClient = openAiClient.AsIChatClient();
+        IChatClient chatClient = ChatClientFactory.Create();
 
         var workspace = new MiniCode.Workspace.Workspace(workspaceRoot);
         var files = new MiniCode.Workspace.FileSystemService(workspace);

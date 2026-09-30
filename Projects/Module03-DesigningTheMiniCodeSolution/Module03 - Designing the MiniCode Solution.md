@@ -2,19 +2,19 @@
 
 ## Project Overview
 
-We take Module 2's single file and split it across the five projects MiniCode will live in for the rest of the course — then fix the direction dependencies are allowed to flow between them. Nothing new happens on screen: MiniCode still just chats. What changes is that the terminal no longer knows what a model is.
+We take Module 2b's two files and split them across the five projects MiniCode will live in for the rest of the course — then fix the direction dependencies are allowed to flow between them. Nothing new happens on screen: MiniCode still just chats. What changes is that the terminal no longer knows what a model is.
 
 ## Prerequisites
 
-**Starting point:** open Module02-MicrosoftAgentFrameworkFundamentals/.
+**Starting point:** open Module02b-ConfiguringModelProviders/.
 
-Module 2's four objects — `IChatClient`, `ChatClientAgent`, `AgentSession`, and the streaming loop. That exact code is carried forward here; it just moves out of `Program.cs` and into the projects that own it.
+Module 2a's four objects — `IChatClient`, `ChatClientAgent`, `AgentSession`, and the streaming loop — and Module 2b's `ChatClientFactory`. That exact code is carried forward here; it just moves out of `MiniCode.Cli` and into the projects that own it.
 
 This structure is what **Phase 1 Capstone — Repository Explorer (v0.1)** consolidates.
 
 ## Setup
 
-Nothing new to install. The two packages from Module 2 move from `MiniCode.Cli` to `MiniCode.Agent`, which is the whole point of this Module.
+Nothing new to install. The two packages from Module 2b move from `MiniCode.Cli` to `MiniCode.Agent`, which is the whole point of this Module.
 
 ## Core Concepts
 
@@ -179,35 +179,27 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
 
 ### `src/MiniCode.Agent/CodingAgentFactory.cs`
 
+`ChatClientFactory.cs` moves from `MiniCode.Cli` to `src/MiniCode.Agent/` unchanged apart from its namespace, which becomes `MiniCode.Agent`. This is the factory that uses it:
+
 ```csharp
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using OpenAI;
-using OpenAI.Chat;
 
 namespace MiniCode.Agent;
 
 /// <summary>
-/// The composition root: the one place that names OpenAI, reads the API key, and
-/// assembles the agent. Everything above it depends on <see cref="ICodingAgent"/>.
+/// The composition root: the one place that assembles the agent. The model comes
+/// from <see cref="ChatClientFactory"/>; everything above depends on <see cref="ICodingAgent"/>.
 /// </summary>
 public static class CodingAgentFactory
 {
-    private const string ModelId = "gpt-4.1-mini";
-    private const string ApiKeyVariable = "OPENAI_API_KEY";
-
     private const string Instructions =
         "You are MiniCode, a concise assistant for software developers.";
 
     /// <summary>Builds a ready-to-use agent, throwing if the API key is missing.</summary>
     public static async Task<ICodingAgent> CreateAsync(CancellationToken cancellationToken = default)
     {
-        string apiKey = Environment.GetEnvironmentVariable(ApiKeyVariable)
-            ?? throw new InvalidOperationException(
-                $"{ApiKeyVariable} is not set. Set it before running MiniCode.");
-
-        ChatClient openAiClient = new OpenAIClient(apiKey).GetChatClient(ModelId);
-        IChatClient chatClient = openAiClient.AsIChatClient();
+        IChatClient chatClient = ChatClientFactory.Create();
 
         AIAgent agent = new ChatClientAgent(chatClient, Instructions, name: "MiniCode");
         AgentSession session = await agent.CreateSessionAsync(cancellationToken);
@@ -254,14 +246,14 @@ internal static class Program
 ## Walkthrough
 
 1. **`ICodingAgent` is the whole boundary.** One method, `string` in and `IAsyncEnumerable<string>` out. The CLI cannot name a MAF type because it does not reference the package that defines one.
-2. **`CodingAgent` holds the session.** Module 2 created it in `Main`; it now lives on the class that uses it. That relocation is the reason Module 8 can later replace the conversation without touching the loop.
+2. **`CodingAgent` holds the session.** Module 2a created it in `Main`; it now lives on the class that uses it. That relocation is the reason Module 8 can later replace the conversation without touching the loop.
 3. **The constructor is `internal`.** The only way to get a `CodingAgent` is through the factory, so nobody can assemble a half-configured one.
-4. **`CodingAgentFactory` is the composition root**, and the only place that mentions OpenAI or reads an environment variable. When Module 5a adds tools, they get wired in here.
+4. **`CodingAgentFactory` is the composition root**, and it never names a provider: the `IChatClient` comes from `ChatClientFactory`, still the only type that reads an environment variable. When Module 5a adds tools, they get wired in here.
 5. **`Program` shrank to plumbing** — resolve an agent, run the loop, translate a missing key into a message and exit code 1. A misconfigured start now reports to the *person*, not into a model's context. And the two leaf projects compile with no files in them: not a placeholder, but the dependency graph existing before the code does.
 
 ## Exercise
 
-**Move the chat loop into its own class.** `Program.cs` above calls `new ConsoleChatLoop(agent).RunAsync()`, and that class does not exist yet. Create `src/MiniCode.Cli/ConsoleChatLoop.cs` and move Module 2's read-evaluate-print loop into it.
+**Move the chat loop into its own class.** `Program.cs` above calls `new ConsoleChatLoop(agent).RunAsync()`, and that class does not exist yet. Create `src/MiniCode.Cli/ConsoleChatLoop.cs` and move Module 2b's read-evaluate-print loop into it.
 
 Acceptance criteria:
 
@@ -275,7 +267,7 @@ The finished version is `src/MiniCode.Cli/ConsoleChatLoop.cs` in **this Module�
 
 ## Expected Output
 
-Identical behaviour to Module 2, which is the point: a refactor that changes structure and not function.
+Identical behaviour to Module 2b, which is the point: a refactor that changes structure and not function.
 
 ```text
 > dotnet run --project src/MiniCode.Cli

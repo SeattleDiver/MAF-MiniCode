@@ -8,7 +8,7 @@ Phase 1 is finished, and MiniCode can now be pointed at a .NET repository it has
 
 **Starting point:** open `Module06-RepositoryDiscovery/`.
 
-All of Phase 1 — the agent and session (Module 2), the five-project layout (3), the sandbox (4), the interception seam and read tools (5a, 5b), and repository discovery (6).
+All of Phase 1 — the agent, its session and the provider factory (2a, 2b), the five-project layout (3), the sandbox (4), the interception seam and read tools (5a, 5b), and repository discovery (6).
 
 ## Setup
 

@@ -26,7 +26,7 @@ Nothing new. No package, no environment variable, no project. Every change is to
 
 **Seam two: half of what MiniCode does was never traced.** Module 17 instrumented `RunStreamingAsync`, which was the whole story when it was written. Module 16b then added `/plan` and `/review` — genuine model calls that bypass that method entirely. `TracingInvoker` still logs the tools they use, so `/review` shows its `git_diff`; what is missing is any `[Agent]` line saying why the tool ran. Module 16b shipped before Module 17 and Module 17 only knew about the streaming loop, so neither could see it.
 
-**Seam three: two ways of reading an environment variable, one line apart.** Module 18 added `MINICODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking OpenAI for a model named `""`. It left the `OPENAI_API_KEY` guard one line above exactly as Module 3 wrote it: a `??`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
+**Seam three: two ways of reading an environment variable, in one file.** Module 18 added `MINICODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking the provider for a model named `""`. It left `Read`, the guard every provider key goes through, exactly as Module 2b wrote it: a `??`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
 
 **The trace format constrains how a failure is logged.** `BracketLoggerProvider` writes `formatter(state, exception)`, and the default formatter renders only the message template — an exception passed as the `LogError` exception argument never reaches the output. So the exception *type* has to be in the template, or the trace says `Task failed` and nothing more.
 
@@ -152,21 +152,21 @@ Seam two, also in `src/MiniCode.Agent/CodingAgent.cs` — the two model calls th
 
 `ClearSession` gains one line in the same spirit — `_agentLog.LogInformation("Session cleared");` after the history is emptied.
 
-Seam three, in `src/MiniCode.Agent/CodingAgentFactory.cs`:
+Seam three, in `src/MiniCode.Agent/ChatClientFactory.cs`:
 
 ```csharp
-        // Both reads test Length, not null: an exported-but-empty variable is a
-        // shell's way of saying "unset", and OPENAI_API_KEY= reaching OpenAIClient
-        // raises an unhandled ArgumentException instead of the message below.
-        string apiKey = Environment.GetEnvironmentVariable(ApiKeyVariable) is { Length: > 0 } key
-            ? key
-            : throw new InvalidOperationException(
-                $"{ApiKeyVariable} is not set. Set it before running MiniCode.");
+    // Every read here tests Length, not null: an exported-but-empty variable is a
+    // shell's way of saying "unset", and an empty key reaching OpenAIClient raises
+    // an unhandled ArgumentException instead of the message below.
+    private static string Read(string variable) =>
+        Environment.GetEnvironmentVariable(variable) is { Length: > 0 } value
+            ? value
+            : throw new InvalidOperationException($"{variable} is not set. Set it before running MiniCode.");
 ```
 
 ## Walkthrough
 
-1. **Four files differ from Module 18** — `CodingAgent.cs`, `CodingAgentFactory.cs`, `MiniCodeVersion.cs` and `MiniCode.Cli.csproj`. Everything else in the solution is byte-for-byte what Module 18 shipped.
+1. **Four files differ from Module 18** — `CodingAgent.cs`, `ChatClientFactory.cs`, `MiniCodeVersion.cs` and `MiniCode.Cli.csproj`. Everything else in the solution is byte-for-byte what Module 18 shipped.
 2. **`GetAsyncEnumerator(cancellationToken)` replaces `await foreach`, and nothing else about the loop changes.** The body below the `try` is the same code Module 17 left behind, indented one level further. `await using` on the enumerator is what `await foreach` was doing invisibly.
 3. **The `catch` blocks rethrow, so the terminal behaves exactly as before.** `ConsoleChatLoop` still prints `Cancelled.` or `Error: ...`. This fix adds a line to the trace; it changes nothing the user sees.
 4. **`break` inside the `try` is fine — it is `yield` that the compiler refuses.** Only the `yield return` statements had to move out.
