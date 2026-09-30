@@ -12,7 +12,7 @@ This Module produces a design document rather than code, so there is no solution
 
 ## Setup
 
-No packages, SDKs, or environment variables are required for this Module. We are not writing or running code yet — Module 2 introduces the first MAF console application. This Module is entirely conceptual and design-focused.
+No packages, SDKs, or environment variables are required for this Module. We are not writing or running code yet — Module 2a introduces the first MAF console application. This Module is entirely conceptual and design-focused.
 
 ## Core Concepts
 
@@ -173,4 +173,4 @@ By the end of this Module, you should have:
 - The MiniCode architecture diagram above, understood well enough to redraw from memory with the correct component responsibilities.
 - An explicit understanding that MiniCode is a **single-agent harness** — no multi-agent orchestration will appear anywhere in this course.
 
-No code runs in this Module, so there is no build or console output to verify — the deliverable is the design artifact itself, which we'll start implementing in Module 2.
+No code runs in this Module, so there is no build or console output to verify — the deliverable is the design artifact itself, which we'll start implementing in Module 2a.

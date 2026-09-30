@@ -25,24 +25,25 @@ left for a follow-on advanced MAF course.
 ## Stack
 
 - **Microsoft Agent Framework** (`Microsoft.Agents.AI` and related packages) on **.NET 10**.
-- **OpenAI** exclusively, via the first-party `Microsoft.Extensions.AI.OpenAI` `IChatClient`.
-- Chat model is always **`gpt-4.1-mini`**. No embeddings, RAG, or vector memory — context
+- **OpenAI** by default, via the first-party `Microsoft.Extensions.AI.OpenAI` `IChatClient`. From
+  Module 2b, a `#define` in `ChatClientFactory` switches to Azure OpenAI or Gemini instead.
+- Default chat model is **`gpt-4.1-mini`** (`gemini-2.5-flash` on Gemini). No embeddings, RAG, or vector memory — context
   management is search-and-summarize based (Module 8).
-- API key comes from the `OPENAI_API_KEY` environment variable.
+- API key comes from the `OPENAI_API_KEY` environment variable, or the selected provider's own.
 
 ## Course Structure
 
-23 lessons plus 4 Phase Capstones = **27 videos**, delivered in five Phases:
+24 lessons plus 4 Phase Capstones = **28 videos**, delivered in five Phases:
 
 | Phase | Modules | Capstone |
 |---|---|---|
-| 1 — Foundations & Read-Only Agent | 1, 2, 3, 4, 5a, 5b, 6 | **Repository Explorer** (v0.1) |
+| 1 — Foundations & Read-Only Agent | 1, 2a, 2b, 3, 4, 5a, 5b, 6 | **Repository Explorer** (v0.1) |
 | 2 — Context & Planning | 7, 8a, 8b, 9 | **Planning Agent** (v0.2) |
 | 3 — Taking Action | 10, 11a, 11b, 12, 13 | **Autonomous Fixer** (v0.3) |
 | 4 — Governance, CLI & Delivery | 14, 15, 16a, 16b, 17, 18 | **Developer CLI** (v0.4) |
 | 5 — Capstone | 19 | Course capstone (v1.0) |
 
-Modules 5, 8, 11, and 16 are split across two lessons each because their topic lists don't
+Modules 2, 5, 8, 11, and 16 are split across two lessons each because their topic lists don't
 fit a single video's budget; each part shares its Module's syllabus number, scope, and Phase.
 
 By the end, the viewer can: explain how a coding agent differs from a chatbot; build and
