@@ -90,7 +90,7 @@ The implementation, from `src/MiniCode.Agent/CodingAgent.cs`:
     }
 ```
 
-The two new commands, from `src/MiniCode.Cli/ConsoleChatLoop.cs`:
+The two new commands, from `src/MiniCode.Cli/InteractiveCommandLoop.cs`:
 
 ```csharp
             case "plan":

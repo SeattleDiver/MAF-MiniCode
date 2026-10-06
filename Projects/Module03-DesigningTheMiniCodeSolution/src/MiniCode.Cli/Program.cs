@@ -17,7 +17,7 @@ internal static class Program
         try
         {
             ICodingAgent agent = await CodingAgentFactory.CreateAsync();
-            await new ConsoleChatLoop(agent).RunAsync();
+            await new InteractiveCommandLoop(agent).RunAsync();
             return 0;
         }
         catch (InvalidOperationException ex)

@@ -155,7 +155,7 @@ The call that produces a plan, from `src/MiniCode.Agent/Planner.cs`:
     }
 ```
 
-`Parse` keeps lines matching `^\d+[.)]\s+(?<title>.+)$` and discards the rest. `ConsoleChatLoop` calls `PlanAsync` before each turn, prints the plan and the notice, then answers as before.
+`Parse` keeps lines matching `^\d+[.)]\s+(?<title>.+)$` and discards the rest. `InteractiveCommandLoop` calls `PlanAsync` before each turn, prints the plan and the notice, then answers as before.
 
 ## Walkthrough
 

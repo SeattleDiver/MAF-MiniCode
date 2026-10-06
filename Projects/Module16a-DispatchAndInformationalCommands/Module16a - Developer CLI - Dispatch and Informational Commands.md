@@ -18,7 +18,7 @@ Nothing to install. No new package.
 
 ## Core Concepts
 
-**A slash command bypasses the model, not its policies.** `/build` does not ask gpt-4.1-mini to call `run_command` — `ConsoleChatLoop` calls it directly, through the identical `AIFunction` the model would have called. Same allow list, same approval, same loop guard.
+**A slash command bypasses the model, not its policies.** `/build` does not ask gpt-4.1-mini to call `run_command` — `InteractiveCommandLoop` calls it directly, through the identical `AIFunction` the model would have called. Same allow list, same approval, same loop guard.
 
 **`ICodingAgent` grows by exactly two members, and stays string-only.** `InvokeToolAsync` takes a tool name and a plain `IReadOnlyDictionary<string, object?>` and returns a `string` — no `AIFunction`, no `AIFunctionArguments` crosses into `MiniCode.Cli`, honoring the interface's own founding rule.
 
@@ -135,7 +135,7 @@ The one changed line in `src/MiniCode.Infrastructure/CommandAllowList.cs`:
         ["dotnet restore", "dotnet build", "dotnet test", "dotnet format", "git commit"];
 ```
 
-The dispatcher itself, from `src/MiniCode.Cli/ConsoleChatLoop.cs`:
+The dispatcher itself, from `src/MiniCode.Cli/InteractiveCommandLoop.cs`:
 
 ```csharp
     /// <summary>Runs one command. Returns false only for /exit, to end the loop.</summary>
@@ -178,11 +178,11 @@ The dispatcher itself, from `src/MiniCode.Cli/ConsoleChatLoop.cs`:
     }
 ```
 
-`CodingAgent`'s constructor gains an `IReadOnlyList<AITool> tools` parameter and builds `_tools = tools.OfType<AIFunction>().ToDictionary(t => t.Name)`; `CodingAgentFactory` passes `catalog.GetTools()` through unchanged from where it already built it for `ChatClientAgent`. `RunStreamingAsync` calls `DescribeToolCalls(update)` in place of an empty fragment. `ConsoleChatLoop.RunAsync` wraps each turn in `try`/`catch (OperationCanceledException)`/`catch (Exception)`, and a `Console.CancelKeyPress` handler cancels a per-turn `CancellationTokenSource` instead of letting Ctrl+C kill the process. `HelpText` and a `RunShellAsync` helper round out the file; neither is shown here since neither does anything the switch above doesn't already explain.
+`CodingAgent`'s constructor gains an `IReadOnlyList<AITool> tools` parameter and builds `_tools = tools.OfType<AIFunction>().ToDictionary(t => t.Name)`; `CodingAgentFactory` passes `catalog.GetTools()` through unchanged from where it already built it for `ChatClientAgent`. `RunStreamingAsync` calls `DescribeToolCalls(update)` in place of an empty fragment. `InteractiveCommandLoop.RunAsync` wraps each turn in `try`/`catch (OperationCanceledException)`/`catch (Exception)`, and a `Console.CancelKeyPress` handler cancels a per-turn `CancellationTokenSource` instead of letting Ctrl+C kill the process. `HelpText` and a `RunShellAsync` helper round out the file; neither is shown here since neither does anything the switch above doesn't already explain.
 
 ## Walkthrough
 
-1. **`SlashCommand.TryParse` returns `null` for anything not starting with `/`**, so `ConsoleChatLoop` can pattern-match once — `is { } command` — and fall through to the existing chat path otherwise.
+1. **`SlashCommand.TryParse` returns `null` for anything not starting with `/`**, so `InteractiveCommandLoop` can pattern-match once — `is { } command` — and fall through to the existing chat path otherwise.
 2. **`_tools` is built once, in the constructor, from the exact list `ChatClientAgent` was given.** A slash command's `run_command` and the model's `run_command` are `TryGetValue` calls into the same dictionary, not two different objects that happen to share a name.
 3. **`InvokeToolAsync` calls `function.InvokeAsync` on an `InterceptedFunction`,** so it runs the whole chain — `LoopGuardInvoker` → `ApprovalInvoker` → `DirectToolInvoker` → the real tool — exactly as if the model had called it.
 4. **`/commit` builds `git commit -a -m <message>`,** staging every already-tracked modification but no new untracked file — the smallest thing that satisfies the syllabus's example without adding a `git add` step nothing asked for.
@@ -192,7 +192,7 @@ The dispatcher itself, from `src/MiniCode.Cli/ConsoleChatLoop.cs`:
 
 ## Exercise
 
-Wire a `/log` command to `git_log`, in `src/MiniCode.Cli/ConsoleChatLoop.cs`, following the exact shape `/diff` already uses. `command.Argument`, when present, is how many entries to show; `git_log`'s own tool already defaults to ten when the argument is omitted. Acceptance criteria: `/log` with no argument shows the default ten; `/log 3` shows three; a non-numeric argument (`/log all`) does not throw and falls back to the tool's default rather than crashing the turn. No reference implementation ships in a later Module folder — the course itself only ever calls `git_log` through the model.
+Wire a `/log` command to `git_log`, in `src/MiniCode.Cli/InteractiveCommandLoop.cs`, following the exact shape `/diff` already uses. `command.Argument`, when present, is how many entries to show; `git_log`'s own tool already defaults to ten when the argument is omitted. Acceptance criteria: `/log` with no argument shows the default ten; `/log 3` shows three; a non-numeric argument (`/log all`) does not throw and falls back to the tool's default rather than crashing the turn. No reference implementation ships in a later Module folder — the course itself only ever calls `git_log` through the model.
 
 ## Expected Output
 
@@ -247,4 +247,4 @@ Shown to operator:
 → read_file({"path":"src/CustomerService.cs"})
 ```
 
-Cancellation, error presentation, and the Y/N/A prompt in `/commit` itself all need a real terminal and a live `OPENAI_API_KEY` to demonstrate as MiniCode actually runs — a keystroke and a process signal are not things this lesson's code can produce. What reaches them is exactly the sequence captured above: the same `ApprovalInvoker` prompt, the same tool results, driven by `ConsoleChatLoop` instead of a harness.
+Cancellation, error presentation, and the Y/N/A prompt in `/commit` itself all need a real terminal and a live `OPENAI_API_KEY` to demonstrate as MiniCode actually runs — a keystroke and a process signal are not things this lesson's code can produce. What reaches them is exactly the sequence captured above: the same `ApprovalInvoker` prompt, the same tool results, driven by `InteractiveCommandLoop` instead of a harness.

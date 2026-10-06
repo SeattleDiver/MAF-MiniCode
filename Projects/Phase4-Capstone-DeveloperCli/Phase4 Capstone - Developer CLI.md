@@ -26,7 +26,7 @@ Nothing new. No package, no environment variable, no project. Every change is to
 
 **Seam two: half of what MiniCode does was never traced.** Module 17 instrumented `RunStreamingAsync`, which was the whole story when it was written. Module 16b then added `/plan` and `/review` — genuine model calls that bypass that method entirely. `TracingInvoker` still logs the tools they use, so `/review` shows its `git_diff`; what is missing is any `[Agent]` line saying why the tool ran. Module 16b shipped before Module 17 and Module 17 only knew about the streaming loop, so neither could see it.
 
-**Seam three: two ways of reading an environment variable, one line apart.** Module 18 added `MINICODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking OpenAI for a model named `""`. It left the `OPENAI_API_KEY` guard one line above exactly as Module 3 wrote it: a `??`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
+**Seam three: two ways of reading an environment variable, in one file.** Module 18 added `MINICODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking the provider for a model named `""`. It left the key check after the provider `switch` exactly as Module 2b wrote it: `apiKey is null`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
 
 **The trace format constrains how a failure is logged.** `BracketLoggerProvider` writes `formatter(state, exception)`, and the default formatter renders only the message template — an exception passed as the `LogError` exception argument never reaches the output. So the exception *type* has to be in the template, or the trace says `Task failed` and nothing more.
 
@@ -90,7 +90,7 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
             catch (OperationCanceledException)
             {
                 // Ctrl+C is a decision, not a fault. Rethrowing is what leaves
-                // ConsoleChatLoop's "Cancelled." message intact.
+                // InteractiveCommandLoop's "Cancelled." message intact.
                 _agentLog.LogInformation("Task cancelled");
                 throw;
             }
@@ -152,23 +152,23 @@ Seam two, also in `src/MiniCode.Agent/CodingAgent.cs` — the two model calls th
 
 `ClearSession` gains one line in the same spirit — `_agentLog.LogInformation("Session cleared");` after the history is emptied.
 
-Seam three, in `src/MiniCode.Agent/CodingAgentFactory.cs`:
+Seam three, in `src/MiniCode.Agent/ChatClientFactory.cs`. The `MINI_CODE_LLM` read at the top of `Create` and the `AZURE_OPENAI_ENDPOINT` read in its `case` get the same `is { Length: > 0 }` test in place of their null tests, so an exported-but-empty provider means OpenAI rather than an error. The key check after the `switch` becomes:
 
 ```csharp
-        // Both reads test Length, not null: an exported-but-empty variable is a
-        // shell's way of saying "unset", and OPENAI_API_KEY= reaching OpenAIClient
-        // raises an unhandled ArgumentException instead of the message below.
-        string apiKey = Environment.GetEnvironmentVariable(ApiKeyVariable) is { Length: > 0 } key
-            ? key
-            : throw new InvalidOperationException(
-                $"{ApiKeyVariable} is not set. Set it before running MiniCode.");
+        // Empty counts as missing: an exported-but-empty variable is a shell's way of
+        // saying "unset", and an empty key reaching OpenAIClient raises an unhandled
+        // ArgumentException instead of the message below.
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            throw new InvalidOperationException($"{apiKeyVariable} is not set. Set it before running MiniCode.");
+        }
 ```
 
 ## Walkthrough
 
-1. **Four files differ from Module 18** — `CodingAgent.cs`, `CodingAgentFactory.cs`, `MiniCodeVersion.cs` and `MiniCode.Cli.csproj`. Everything else in the solution is byte-for-byte what Module 18 shipped.
+1. **Four files differ from Module 18** — `CodingAgent.cs`, `ChatClientFactory.cs`, `MiniCodeVersion.cs` and `MiniCode.Cli.csproj`. Everything else in the solution is byte-for-byte what Module 18 shipped.
 2. **`GetAsyncEnumerator(cancellationToken)` replaces `await foreach`, and nothing else about the loop changes.** The body below the `try` is the same code Module 17 left behind, indented one level further. `await using` on the enumerator is what `await foreach` was doing invisibly.
-3. **The `catch` blocks rethrow, so the terminal behaves exactly as before.** `ConsoleChatLoop` still prints `Cancelled.` or `Error: ...`. This fix adds a line to the trace; it changes nothing the user sees.
+3. **The `catch` blocks rethrow, so the terminal behaves exactly as before.** `InteractiveCommandLoop` still prints `Cancelled.` or `Error: ...`. This fix adds a line to the trace; it changes nothing the user sees.
 4. **`break` inside the `try` is fine — it is `yield` that the compiler refuses.** Only the `yield return` statements had to move out.
 5. **`Task completed` now means what it says.** A run that faults or is cancelled never reaches it, so the trace no longer implies a turn finished when it did not.
 6. **`PlanAsync` is called on every ordinary chat turn too**, not only by `/plan` — so a normal turn's trace now opens with `Planning:` and `Plan: N steps` before `Task started`. That call was always happening and always costing tokens; it simply was not visible.
@@ -178,7 +178,7 @@ Seam three, in `src/MiniCode.Agent/CodingAgentFactory.cs`:
 
 ## Exercise
 
-**One:** trace the calls seam one does not cover. `PlanAsync` and `ReviewAsync` are single awaits, so an ordinary `try`/`catch` works where the iterator needed a hand-driven enumerator. Give each the same treatment in `src/MiniCode.Agent/CodingAgent.cs`. Acceptance criteria: a fault in either logs one `[Agent]` line naming the exception type and message, then rethrows so `ConsoleChatLoop` prints what it prints today; a cancellation logs as a cancellation, not a failure; a successful call's trace is unchanged.
+**One:** trace the calls seam one does not cover. `PlanAsync` and `ReviewAsync` are single awaits, so an ordinary `try`/`catch` works where the iterator needed a hand-driven enumerator. Give each the same treatment in `src/MiniCode.Agent/CodingAgent.cs`. Acceptance criteria: a fault in either logs one `[Agent]` line naming the exception type and message, then rethrows so `InteractiveCommandLoop` prints what it prints today; a cancellation logs as a cancellation, not a failure; a successful call's trace is unchanged.
 
 **Two:** drive the plan. Make `RunStreamingAsync` advance the plan it was given — mark a step `Complete` as the model finishes it, and use `TaskPlan.Revise` when the model's actual course diverges from the plan. Acceptance criteria: `/status` after a turn shows which steps were completed; a plan whose steps all complete reports `IsComplete`; revising never renumbers or removes a step already shown to the operator; `TaskPlan`'s immutability is preserved, so each change produces a new instance. This is a stretch beyond what MiniCode requires, and the acceptance criteria are the specification.
 

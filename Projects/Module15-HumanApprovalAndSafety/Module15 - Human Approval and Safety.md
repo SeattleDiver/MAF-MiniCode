@@ -170,7 +170,7 @@ internal sealed class ConsoleApprovalPrompter : IApprovalPrompter
 3. **`Describe` reuses the exact serialization Module 12's loop guard already established** for comparing calls — `JsonSerializer.Serialize(invocation.Arguments)`, not `.ToString()` — so what a human is shown is never the array's type name.
 4. **Denial short-circuits before `inner.InvokeAsync` is ever awaited.** The tool genuinely does not run; the string returned is the only trace of the attempt.
 5. **`_alwaysApprove` is instance state, not a static.** `CodingAgentFactory` builds one `ApprovalInvoker` per call to `CreateAsync`, and `CreateAsync` runs once per `MiniCode` process — so "for this session" and "for the lifetime of this object" are the same thing without any extra bookkeeping.
-6. **`ConsoleApprovalPrompter` is `internal`,** like `ConsoleChatLoop` before it — nothing outside `MiniCode.Cli` is meant to construct one directly.
+6. **`ConsoleApprovalPrompter` is `internal`,** like `InteractiveCommandLoop` before it — nothing outside `MiniCode.Cli` is meant to construct one directly.
 
 ## Exercise
 

@@ -166,7 +166,7 @@ The agent seeds the tally with the instruction block in its constructor, then ch
         }
 ```
 
-`ContextSummary` on `ICodingAgent` returns `_budget.Describe(_usedTokens)`, and `ConsoleChatLoop` prints it after each answer — one added line in each file.
+`ContextSummary` on `ICodingAgent` returns `_budget.Describe(_usedTokens)`, and `InteractiveCommandLoop` prints it after each answer — one added line in each file.
 
 ## Walkthrough
 

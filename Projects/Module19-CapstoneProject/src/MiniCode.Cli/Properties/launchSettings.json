@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MiniCode.Cli": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MINI_CODE_LLM": "OLLAMA"
+      }
+    }
+  }
+}

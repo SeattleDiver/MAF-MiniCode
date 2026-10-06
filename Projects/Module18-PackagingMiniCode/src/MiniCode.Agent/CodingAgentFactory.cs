@@ -2,42 +2,28 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using MiniCode.Tools;
-using OpenAI;
-using OpenAI.Chat;
 
 namespace MiniCode.Agent;
 
 /// <summary>
-/// The composition root: the one place that names OpenAI, reads the API key, and
-/// assembles the agent with its tools.
+/// The composition root: the one place that assembles the agent with its tools.
+/// The model comes from <see cref="ChatClientFactory"/>, which alone knows the provider.
 /// </summary>
 public static class CodingAgentFactory
 {
-    private const string DefaultModelId = "gpt-4.1-mini";
-    private const string ApiKeyVariable = "OPENAI_API_KEY";
-    private const string ModelVariable = "MINICODE_MODEL";
-
     /// <summary>Builds a ready-to-use agent over the given workspace root.</summary>
     public static async Task<ICodingAgent> CreateAsync(
         string workspaceRoot,
         IApprovalPrompter prompter,
         CancellationToken cancellationToken = default)
     {
-        string apiKey = Environment.GetEnvironmentVariable(ApiKeyVariable)
-            ?? throw new InvalidOperationException(
-                $"{ApiKeyVariable} is not set. Set it before running MiniCode.");
-        string modelId = Environment.GetEnvironmentVariable(ModelVariable) is { Length: > 0 } configured
-            ? configured
-            : DefaultModelId;
-
         // The composition root builds this, not MiniCode.Cli — the logging
         // provider lives in MiniCode.Infrastructure, which Cli cannot reference.
         // CodingAgent owns disposing it, alongside the chat client.
         ILoggerFactory loggerFactory = LoggerFactory.Create(
             builder => builder.AddProvider(new MiniCode.Infrastructure.BracketLoggerProvider()));
 
-        ChatClient openAiClient = new OpenAIClient(apiKey).GetChatClient(modelId);
-        IChatClient chatClient = openAiClient.AsIChatClient();
+        IChatClient chatClient = ChatClientFactory.Create();
 
         var workspace = new MiniCode.Workspace.Workspace(workspaceRoot);
         var files = new MiniCode.Workspace.FileSystemService(workspace);

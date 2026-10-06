@@ -78,7 +78,8 @@ The agent continues working until it either successfully completes the task, det
 | Phase | # | Module | Corresponds to prior "v" milestone |
 |-------|---|--------|-------------------------------------|
 | 1 — Foundations & Read-Only Agent | 1 | Understanding Coding Agents | — |
-| 1 | 2 | Microsoft Agent Framework Fundamentals | v0.1 |
+| 1 | 2a | Microsoft Agent Framework Fundamentals - Creating an Agent | v0.1 |
+| 1 | 2b | Microsoft Agent Framework Fundamentals - Configuring Model Providers | v0.1 |
 | 1 | 3 | Designing the MiniCode Solution | — |
 | 1 | 4 | Building the Workspace Sandbox | v0.1 |
 | 1 | 5a | Giving the Agent Read Access - The Interception Seam | v0.1 |
@@ -109,7 +110,7 @@ The agent continues working until it either successfully completes the task, det
 
 ## Course Delivery Structure
 
-Every Module folder under `Projects/` is a complete, standalone, runnable solution — a cumulative snapshot of MiniCode at the *end* of that lesson. To move to the next Module, the viewer opens the previous Module's folder, already complete, and builds up to what the next folder contains; they never retype earlier work and never strip anything out to get to a starting point. Module 1 is the one exception: it is lesson-only (design work, no code), so Module 2 starts from an empty project.
+Every Module folder under `Projects/` is a complete, standalone, runnable solution — a cumulative snapshot of MiniCode at the *end* of that lesson. To move to the next Module, the viewer opens the previous Module's folder, already complete, and builds up to what the next folder contains; they never retype earlier work and never strip anything out to get to a starting point. Module 1 is the one exception: it is lesson-only (design work, no code), so Module 2a starts from an empty project.
 
 A Module folder holds its lesson alongside that snapshot — `Projects/ModuleNN-TitleInPascalCase/ModuleNN - Title.md`, `MiniCode.slnx`, and `src/MiniCode.Cli/ .Agent/ .Tools/ .Workspace/ .Infrastructure/`. No Module's code depends on anything a later Module introduces.
 
@@ -129,16 +130,17 @@ Each lesson is sized for a single video:
 
 ### Modules split across two videos
 
-Four Modules cannot fit their topic list inside one lesson's budget and are delivered as two parts each. Parts share the Module's syllabus number, scope and Phase, so the 19-Module structure and the Phase mapping are unchanged:
+Five Modules cannot fit their topic list inside one lesson's budget and are delivered as two parts each. Parts share the Module's syllabus number, scope and Phase, so the 19-Module structure and the Phase mapping are unchanged:
 
 | Module | Part a | Part b |
 |---|---|---|
+| 2 — Microsoft Agent Framework Fundamentals | creating an agent: the four MAF objects | configuring model providers: `ChatClientFactory` |
 | 5 — Giving the Agent Read Access | the tool-interception seam and tool registration | `ListFiles` and `ReadFile` |
 | 8 — Context Management | token budget and search-before-read | working state and compaction |
 | 11 — Shell Command Execution | running a process safely | the command allow list |
 | 16 — Developer CLI and Operating Modes | command dispatch and informational commands | `/plan` and `/review` read-only modes |
 
-**23 lessons plus 4 Phase Capstones = 27 videos.**
+**24 lessons plus 4 Phase Capstones = 28 videos.**
 
 ```text
 D:\MAF-MiniCode\
@@ -154,8 +156,8 @@ D:\MAF-MiniCode\
    Projects\
         Module01-UnderstandingCodingAgents\
              Module01 - Understanding Coding Agents.md    lesson only, no code
-        Module02-MicrosoftAgentFrameworkFundamentals\
-             Module02 - Microsoft Agent Framework Fundamentals.md
+        Module02a-CreatingAnAgent\
+             Module02a - Microsoft Agent Framework Fundamentals - Creating an Agent.md
              MiniCode.slnx                                a complete solution, at end-of-lesson state
              src\MiniCode.Cli\ .Agent\ .Tools\ .Workspace\ .Infrastructure\
         ...                                               each folder a cumulative snapshot

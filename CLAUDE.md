@@ -57,7 +57,7 @@ README.md, CLAUDE.md, Projects/
 ```
 
 1. **Folders are cumulative snapshots, and each one stands alone.** Open `Projects/ModuleNN-Title/` in VS2026 with no other folder present and it restores, builds and runs. The viewer never retypes earlier work; I never delete anything to get to a starting point.
-2. **The recording workflow this exists to serve.** To record Module N, open **Module N−1's** folder under `Projects/` — already complete, nothing to strip out — and build up to what Module N's folder contains. Module N's lesson names that starting folder in its Prerequisites. Module 2 starts from an empty project.
+2. **The recording workflow this exists to serve.** To record Module N, open **Module N−1's** folder under `Projects/` — already complete, nothing to strip out — and build up to what Module N's folder contains. Module N's lesson names that starting folder in its Prerequisites. Module 2a starts from an empty project.
 3. **Generating Module N means: copy Module N−1's solution into `Projects/ModuleNN-Title/`, apply this Module's changes, then write the lesson.** Files this Module does not touch stay byte-for-byte identical to the previous folder, so a viewer diffing two folders sees only what the lesson explains.
 4. **Module folders never contain a test project.** Neither do Phase Capstones. See rule 28. A Module folder may hold the slide deck for that lesson and one small fixture file if its lab needs one; those are lesson assets, not part of the solution.
 5. Module folders are named `ModuleNN-TitleInPascalCase` (zero-padded, hyphen separator, no underbars). Phase Capstone folders are named `PhaseN-Capstone-TitleInPascalCase`.
@@ -69,13 +69,13 @@ README.md, CLAUDE.md, Projects/
 # STRICT RULES FOR ALL C# CODE
 
 8. Target Microsoft Agent Framework (`Microsoft.Agents.AI` and related packages) on .NET 10. Before writing code for any Module, verify current package names, namespaces, and API signatures — MAF is under active development. Flag breaking changes you find versus older samples.
-9. Use OpenAI exclusively, via the first-party `Microsoft.Extensions.AI.OpenAI` package's `IChatClient` implementation. Verify that package's current version and API surface before writing code.
-10. The chat model is always `gpt-4.1-mini`. This course does not use embeddings, RAG, or vector memory — Module 8's context work is search-and-summarize based.
-11. API keys always come from environment variables (e.g. `OPENAI_API_KEY`). Never hardcode a key. Exactly one type reads the environment; nothing else calls `Environment.GetEnvironmentVariable`.
+9. OpenAI is the default provider, via the first-party `Microsoft.Extensions.AI.OpenAI` package's `IChatClient` implementation. From Module 2b on, `ChatClientFactory` can target Azure OpenAI, Gemini or a local Ollama server instead, chosen at run time by the `MINI_CODE_LLM` environment variable (`OPENAI`, `AZURE`, `GEMINI` or `OLLAMA`; unset means `OPENAI`); all go through the same OpenAI SDK against the provider's OpenAI-compatible endpoint. No other provider or package is used. Demos and Expected Output use the OpenAI default. Verify that package's current version and API surface before writing code.
+10. The default chat model is always `gpt-4.1-mini` — on Azure, the deployment name. The Gemini alternate is pinned to `gemini-2.5-flash`, and the Ollama alternate to `qwen2.5-coder:7b` at `http://localhost:11434/v1/` (no key; the factory passes the placeholder `"ollama"` because the OpenAI SDK refuses an empty one). This course does not use embeddings, RAG, or vector memory — Module 8's context work is search-and-summarize based.
+11. API keys always come from environment variables (e.g. `OPENAI_API_KEY`). Never hardcode a key. Exactly one type reads the environment — `ChatClientFactory`, from Module 2b on; nothing else calls `Environment.GetEnvironmentVariable`.
 12. Skip presenter dialog and pleasantries — give me material I can present directly.
 13. **Every Module lesson follows this exact structure, and the whole file stays under 300 lines:**
     - **Project Overview** — 2–3 sentences: what we build and why it matters.
-    - **Prerequisites** — which prior Modules this assumes, **which folder to open as the starting point** (`ModuleNN-Title/`, or "an empty project" for Module 2), and which Phase Capstone it feeds.
+    - **Prerequisites** — which prior Modules this assumes, **which folder to open as the starting point** (`ModuleNN-Title/`, or "an empty project" for Module 2a), and which Phase Capstone it feeds.
     - **Setup** — only what *changes* this Module (a new package, a new env var). If nothing changes, say so in one line.
     - **Core Concepts** — the idea in plain language, before any code. **Write this so it works as a slide**: short paragraphs or bullets, one idea each, no code. This is the part I present away from the editor.
     - **The Code** — at most 125 lines of C#, being the heart of the Module. Show complete, compiling files where they fit the budget; where a file is larger than the budget, show the method or two that matter and name the file the rest lives in. No ellipses inside anything you do show.
@@ -100,6 +100,8 @@ README.md, CLAUDE.md, Projects/
     - MAF 1.22.0 ships `Microsoft.Agents.AI.Compaction`, unused here because its index type requires a `Microsoft.ML.Tokenizers` dependency this course does not take.
     - `dotnet test --nologo` reports "Zero tests ran" with exit code 5 on the .NET 10 SDK. Use plain `dotnet test`.
     - `xunit.v3` needs `global.json` selecting `Microsoft.Testing.Platform`, and no `Microsoft.NET.Test.Sdk`.
+    - Gemini 3.x models reject tool calls on Gemini's OpenAI-compatible endpoint ("Function call is missing a thought_signature") because the OpenAI SDK cannot carry that field; `gemini-2.5-flash` completes them. Azure's `/openai/v1/` endpoint takes the plain OpenAI SDK, so `Azure.AI.OpenAI` is not needed.
+    - MAF 1.22.0 adds `AIAgent.AsIChatClient()`. It does not collide with the OpenAI `ChatClient.AsIChatClient()` MiniCode calls, because the receiver types differ.
 
 ---
 
