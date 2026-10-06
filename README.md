@@ -26,8 +26,9 @@ left for a follow-on advanced MAF course.
 
 - **Microsoft Agent Framework** (`Microsoft.Agents.AI` and related packages) on **.NET 10**.
 - **OpenAI** by default, via the first-party `Microsoft.Extensions.AI.OpenAI` `IChatClient`. From
-  Module 2b, a `#define` in `ChatClientFactory` switches to Azure OpenAI or Gemini instead.
-- Default chat model is **`gpt-4.1-mini`** (`gemini-2.5-flash` on Gemini). No embeddings, RAG, or vector memory — context
+  Module 2b, the `MINI_CODE_LLM` environment variable (`OPENAI`, `AZURE`, `GEMINI` or `OLLAMA`) switches to
+  Azure OpenAI, Gemini or a local Ollama model instead.
+- Default chat model is **`gpt-4.1-mini`** (`gemini-2.5-flash` on Gemini, `qwen2.5-coder:7b` on Ollama). No embeddings, RAG, or vector memory — context
   management is search-and-summarize based (Module 8).
 - API key comes from the `OPENAI_API_KEY` environment variable, or the selected provider's own.
 

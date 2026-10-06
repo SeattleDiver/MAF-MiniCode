@@ -231,7 +231,7 @@ internal static class Program
         try
         {
             ICodingAgent agent = await CodingAgentFactory.CreateAsync();
-            await new ConsoleChatLoop(agent).RunAsync();
+            await new InteractiveCommandLoop(agent).RunAsync();
             return 0;
         }
         catch (InvalidOperationException ex)
@@ -253,7 +253,7 @@ internal static class Program
 
 ## Exercise
 
-**Move the chat loop into its own class.** `Program.cs` above calls `new ConsoleChatLoop(agent).RunAsync()`, and that class does not exist yet. Create `src/MiniCode.Cli/ConsoleChatLoop.cs` and move Module 2b's read-evaluate-print loop into it.
+**Move the chat loop into its own class.** `Program.cs` above calls `new InteractiveCommandLoop(agent).RunAsync()`, and that class does not exist yet. Create `src/MiniCode.Cli/InteractiveCommandLoop.cs` and move Module 2b's read-evaluate-print loop into it.
 
 Acceptance criteria:
 
@@ -263,7 +263,7 @@ Acceptance criteria:
 - It accepts a `CancellationToken` and stops when cancellation is requested.
 - **It compiles with no `using Microsoft.Agents.AI;`.** If you need that using, something has leaked through `ICodingAgent` and the boundary is broken.
 
-The finished version is `src/MiniCode.Cli/ConsoleChatLoop.cs` in **this Module’s folder** — write yours first, then compare.
+The finished version is `src/MiniCode.Cli/InteractiveCommandLoop.cs` in **this Module’s folder** — write yours first, then compare.
 
 ## Expected Output
 

@@ -21,7 +21,7 @@ Videos 1–9. Everything here rolls up into **`Phase1-Capstone-RepositoryExplore
 |---|---|---|---|---|---|
 | 1 | Understanding Coding Agents | *(no code)* | `Module01-UnderstandingCodingAgents` | 176 | ✅ |
 | 2 | Microsoft Agent Framework Fundamentals — Creating an Agent | *empty folder* | `Module02a-CreatingAnAgent` | 198 | ✅ |
-| 3 | Microsoft Agent Framework Fundamentals — Configuring Model Providers | Module 2a | `Module02b-ConfiguringModelProviders` | 230 | ⬜ |
+| 3 | Microsoft Agent Framework Fundamentals — Configuring Model Providers | Module 2a | `Module02b-ConfiguringModelProviders` | 230 | ✅ |
 | 4 | Designing the MiniCode Solution | Module 2b | `Module03-DesigningTheMiniCodeSolution` | 291 | ✅ |
 | 5 | Building the Workspace Sandbox | Module 3 | `Module04-BuildingTheWorkspaceSandbox` | 218 | ✅ |
 | 6 | Giving the Agent Read Access — The Interception Seam | Module 4 | `Module05a-TheInterceptionSeam` | 231 | ✅ |
@@ -43,7 +43,7 @@ Videos 10–14. Everything here rolls up into **`Phase2-Capstone-PlanningAgent`*
 | 11 | Context Management — Budget and Search Before Read | Module 7 | `Module08a-BudgetAndSearchBeforeRead` | 235 | ✅ |
 | 12 | Context Management — Working State and Compaction | Module 8a | `Module08b-WorkingStateAndCompaction` | 245 | ✅ |
 | 13 | Planning and Task State | Module 8b | `Module09-PlanningAndTaskState` | 219 | ✅ |
-| **14** | **★ Phase 2 Capstone — Planning Agent (v0.2)** | Module 9 | `Phase2-Capstone-PlanningAgent` | 154 | ⬜ |
+| **14** | **★ Phase 2 Capstone — Planning Agent (v0.2)** | Module 9 | `Phase2-Capstone-PlanningAgent` | 154 | ✅ |
 
 **What v0.2 adds:** reads the repository's own conventions, plans before acting, survives a long session. Still cannot change anything.
 
@@ -56,11 +56,11 @@ Videos 15–20. Everything here rolls up into **`Phase3-Capstone-AutonomousFixer
 | # | Video | Start from | Finishes as | Lesson | Deck |
 |---|---|---|---|---|---|
 | 15 | Safe File Editing | Phase 2 Capstone | `Module10-SafeFileEditing` | 209 | ✅ |
-| 16 | Shell Command Execution — Running a Process Safely | Module 10 | `Module11a-RunningAProcessSafely` | — | ⬜ |
-| 17 | Shell Command Execution — The Command Allow List | Module 11a | `Module11b-TheCommandAllowList` | — | ⬜ |
-| 18 | The Autonomous Coding Loop | Module 11b | `Module12-TheAutonomousCodingLoop` | — | ⬜ |
-| 19 | Automated Testing and Self-Correction | Module 12 | `Module13-AutomatedTestingAndSelfCorrection` | — | ⬜ |
-| **20** | **★ Phase 3 Capstone — Autonomous Fixer (v0.3)** | Module 13 | `Phase3-Capstone-AutonomousFixer` | — | ⬜ |
+| 16 | Shell Command Execution — Running a Process Safely | Module 10 | `Module11a-RunningAProcessSafely` | — | ✅ |
+| 17 | Shell Command Execution — The Command Allow List | Module 11a | `Module11b-TheCommandAllowList` | — | ✅ |
+| 18 | The Autonomous Coding Loop | Module 11b | `Module12-TheAutonomousCodingLoop` | — | ✅ |
+| 19 | Automated Testing and Self-Correction | Module 12 | `Module13-AutomatedTestingAndSelfCorrection` | — | ✅ |
+| **20** | **★ Phase 3 Capstone — Autonomous Fixer (v0.3)** | Module 13 | `Phase3-Capstone-AutonomousFixer` | — | ✅ |
 
 **What v0.3 adds:** edits files, runs commands, loops until the build and tests pass. **Nobody is asked permission yet** — that is deliberate, and Module 15 is the answer to it.
 
@@ -72,13 +72,13 @@ Videos 21–27. Everything here rolls up into **`Phase4-Capstone-DeveloperCli`**
 
 | # | Video | Start from | Finishes as | Lesson | Deck |
 |---|---|---|---|---|---|
-| 21 | Git Integration | Phase 3 Capstone | `Module14-GitIntegration` | — | ⬜ |
-| 22 | Human Approval and Safety | Module 14 | `Module15-HumanApprovalAndSafety` | — | ⬜ |
-| 23 | Developer CLI — Dispatch and Informational Commands | Module 15 | `Module16a-DispatchAndInformationalCommands` | — | ⬜ |
-| 24 | Developer CLI — Plan and Review Modes | Module 16a | `Module16b-PlanAndReviewModes` | — | ⬜ |
-| 25 | Observability | Module 16b | `Module17-Observability` | — | ⬜ |
-| 26 | Packaging MiniCode | Module 17 | `Module18-PackagingMiniCode` | — | ⬜ |
-| **27** | **★ Phase 4 Capstone — Developer CLI (v0.4)** | Module 18 | `Phase4-Capstone-DeveloperCli` | — | ⬜ |
+| 21 | Git Integration | Phase 3 Capstone | `Module14-GitIntegration` | — | ✅ |
+| 22 | Human Approval and Safety | Module 14 | `Module15-HumanApprovalAndSafety` | — | ✅ |
+| 23 | Developer CLI — Dispatch and Informational Commands | Module 15 | `Module16a-DispatchAndInformationalCommands` | — | ✅ |
+| 24 | Developer CLI — Plan and Review Modes | Module 16a | `Module16b-PlanAndReviewModes` | — | ✅ |
+| 25 | Observability | Module 16b | `Module17-Observability` | — | ✅ |
+| 26 | Packaging MiniCode | Module 17 | `Module18-PackagingMiniCode` | — | ✅ |
+| **27** | **★ Phase 4 Capstone — Developer CLI (v0.4)** | Module 18 | `Phase4-Capstone-DeveloperCli` | — | ✅ |
 
 **What v0.4 adds:** Git awareness, human approval on dangerous operations, slash-command operating modes, tracing, and `dotnet tool install -g MiniCode`.
 
@@ -88,7 +88,7 @@ Videos 21–27. Everything here rolls up into **`Phase4-Capstone-DeveloperCli`**
 
 | # | Video | Start from | Finishes as | Lesson | Deck |
 |---|---|---|---|---|---|
-| **28** | **Capstone Project (v1.0)** | Phase 4 Capstone | `Module19-CapstoneProject` | — | ⬜ |
+| **28** | **Capstone Project (v1.0)** | Phase 4 Capstone | `Module19-CapstoneProject` | — | ✅ |
 
 No new code — MiniCode completes a real development task end to end, autonomously.
 
@@ -116,7 +116,7 @@ A Capstone is **not** a new topic. It consolidates the Phase, tightens the seams
 
 **Remaining: videos 16–28** (13 units).
 
-**Decks:** 13 of 15 built units have one. Missing: **Module 2b (video 3)** and **Phase 2 Capstone (video 14)**.
+**Decks:** all 28 videos have one, rebuilt from the shared generator described in `SlideDeck.md`.
 
 ---
 

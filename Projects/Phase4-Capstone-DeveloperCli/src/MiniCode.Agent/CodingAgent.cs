@@ -97,7 +97,7 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
             catch (OperationCanceledException)
             {
                 // Ctrl+C is a decision, not a fault. Rethrowing is what leaves
-                // ConsoleChatLoop's "Cancelled." message intact.
+                // InteractiveCommandLoop's "Cancelled." message intact.
                 _agentLog.LogInformation("Task cancelled");
                 throw;
             }

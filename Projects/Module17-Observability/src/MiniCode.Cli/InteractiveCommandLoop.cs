@@ -6,7 +6,7 @@ namespace MiniCode.Cli;
 /// The read-evaluate-print loop. Plain text still goes to the agent as a chat
 /// turn; a line starting with "/" is dispatched as a command instead.
 /// </summary>
-internal sealed class ConsoleChatLoop(ICodingAgent agent)
+internal sealed class InteractiveCommandLoop(ICodingAgent agent)
 {
     private const string HelpText = """
         /help    Show this list

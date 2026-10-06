@@ -6,7 +6,7 @@ namespace MiniCode.Cli;
 /// The read-evaluate-print loop. It knows how to read a line and stream text
 /// back, and nothing else — no model, no filesystem, no processes.
 /// </summary>
-internal sealed class ConsoleChatLoop(ICodingAgent agent)
+internal sealed class InteractiveCommandLoop(ICodingAgent agent)
 {
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
@@ -29,6 +29,7 @@ internal sealed class ConsoleChatLoop(ICodingAgent agent)
             }
 
             Console.WriteLine();
+            Console.WriteLine(agent.ContextSummary);
         }
     }
 }

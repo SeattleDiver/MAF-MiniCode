@@ -81,7 +81,7 @@ internal static class Program
             ICodingAgent agent = await CodingAgentFactory.CreateAsync(root);
             Console.WriteLine($"MiniCode v{MiniCodeVersion.Current}");
             Console.WriteLine($"Workspace: {root}");
-            await new ConsoleChatLoop(agent).RunAsync();
+            await new InteractiveCommandLoop(agent).RunAsync();
             return 0;
         }
         catch (InvalidOperationException ex)
