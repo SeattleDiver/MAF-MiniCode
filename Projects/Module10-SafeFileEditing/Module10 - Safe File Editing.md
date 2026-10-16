@@ -108,8 +108,12 @@ And changing one — the three refusals are most of the method:
                 $"'{path}' has changed since you read it (now {Fingerprint(path)}). Read it again.");
         }
 
-        string anchor = find ?? string.Empty;
+        // A model writes line breaks however it likes, so find and replace are
+        // converted to the file's own line endings before an exact match.
         string text = File.ReadAllText(file);
+        string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        string anchor = (find ?? string.Empty).ReplaceLineEndings(newline);
+        replace = (replace ?? string.Empty).ReplaceLineEndings(newline);
         int first = text.IndexOf(anchor, StringComparison.Ordinal);
 
         if (anchor.Length == 0 || first < 0)
@@ -144,9 +148,10 @@ The fingerprint itself is one line, and `ReadFile` now appends it:
 3. **`expectedFingerprint` is optional and defaults to null.** An edit without one still works — this is a guard the model opts into, and `read_file` tells it to. Making it mandatory would break the case where the model writes a file and immediately edits it.
 4. **Twelve hex characters, not sixty-four.** The model copies this string; every character costs context. Twelve is ample for detecting change, and this is a staleness check rather than a security boundary.
 5. **The uniqueness check uses `IndexOf` from `first + 1`** rather than counting every occurrence. It only matters whether there is a second one.
-6. **The replacement is `string.Concat` on three slices.** No regex, no line splitting — so whatever line endings surrounded the anchor are still there afterwards, untouched, because they were never parsed.
-7. **`Directory.CreateDirectory` before writing** means `write_file` can create `src/Models/Customer.cs` when `Models` does not exist yet, which is what creating a file usually means in practice.
-8. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/CustomerPortal.Core/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
+6. **Line endings follow the file, not the model.** A model often writes `\r\n` into `find` for a file that uses `\n`, and an exact match would then never succeed. `ReplaceLineEndings` converts `find` and `replace` to the file's own convention first, so the match stays exact and the file keeps one style.
+7. **The replacement is `string.Concat` on three slices.** No regex, no line splitting.
+8. **`Directory.CreateDirectory` before writing** means `write_file` can create `src/Models/Customer.cs` when `Models` does not exist yet, which is what creating a file usually means in practice.
+9. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/CustomerPortal.Core/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
 
 ## Exercise
 

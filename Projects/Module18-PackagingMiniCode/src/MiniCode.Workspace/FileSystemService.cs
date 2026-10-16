@@ -45,8 +45,12 @@ public sealed class FileSystemService(IWorkspace workspace) : IFileSystemService
                 $"'{path}' has changed since you read it (now {Fingerprint(path)}). Read it again.");
         }
 
-        string anchor = find ?? string.Empty;
+        // A model writes line breaks however it likes, so find and replace are
+        // converted to the file's own line endings before an exact match.
         string text = File.ReadAllText(file);
+        string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        string anchor = (find ?? string.Empty).ReplaceLineEndings(newline);
+        replace = (replace ?? string.Empty).ReplaceLineEndings(newline);
         int first = text.IndexOf(anchor, StringComparison.Ordinal);
 
         if (anchor.Length == 0 || first < 0)

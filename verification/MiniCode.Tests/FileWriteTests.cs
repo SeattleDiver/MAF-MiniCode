@@ -43,6 +43,18 @@ public sealed class FileWriteTests : IDisposable
     }
 
     [Fact]
+    public void MatchesAnAnchorWrittenWithTheOtherLineEndings()
+    {
+        Seed("one\ntwo\nthree\n");
+        Assert.Equal(1, _files.EditFile("a.cs", "one\r\ntwo\r\n", "ONE\r\nTWO\r\n"));
+        Assert.Equal("ONE\nTWO\nthree\n", File.ReadAllText(Path.Combine(_root, "a.cs")));
+
+        Seed("one\r\ntwo\r\n");
+        Assert.Equal(2, _files.EditFile("a.cs", "two\n", "TWO\n"));
+        Assert.Equal("one\r\nTWO\r\n", File.ReadAllText(Path.Combine(_root, "a.cs")));
+    }
+
+    [Fact]
     public void RefusesAnAmbiguousAnchorAndChangesNothing()
     {
         Seed("x\nx\n");
