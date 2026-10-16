@@ -23,11 +23,18 @@ One new, optional environment variable: `MINI_CODE_LLM`. Leave it unset and Open
 | OpenAI | *(unset)* or `OPENAI` | `OPENAI_API_KEY` |
 | Azure OpenAI | `AZURE` | `AZURE_OPENAI_ENDPOINT` (e.g. `https://my-resource.openai.azure.com`), `AZURE_OPENAI_API_KEY` |
 | Gemini | `GEMINI` | `GEMINI_API_KEY` |
-| Ollama (local) | `OLLAMA` | none — install Ollama, then `ollama pull qwen2.5-coder:7b` |
+| Ollama (local) | `OLLAMA` | none — install Ollama, then create `qwen3-8b-8k` (below) |
 
 > **Currency note.** Gemini's OpenAI-compatible endpoint chats with every current model, but Gemini 3.x models reject the second half of a tool call there — *"Function call is missing a thought_signature"* — because the OpenAI SDK has nowhere to carry that field. `gemini-2.5-flash` completes tool calls, which MiniCode needs from Module 5a on, so that is the pin. Azure's `/openai/v1/` endpoint accepts the plain OpenAI SDK, so the separate `Azure.AI.OpenAI` package — whose last stable release predates the OpenAI SDK this course uses — is not needed.
 
-> **Local models.** Ollama serves an OpenAI-compatible endpoint at `http://localhost:11434/v1/` and ignores the API key, so `OLLAMA` reads no key variable at all. `qwen2.5-coder:7b` is a 7B coding model that runs on your own machine — free and offline, but less capable than `gpt-4.1-mini`, so demos stay on OpenAI.
+> **Local models.** Ollama serves an OpenAI-compatible endpoint at `http://localhost:11434/v1/` and ignores the API key, so `OLLAMA` reads no key variable at all. The pin is `qwen3-8b-8k`: Qwen3 8B with its context window set to 8,192 tokens. It runs on your own machine, free and offline, but is less capable than `gpt-4.1-mini`, so demos stay on OpenAI. Create it once:
+>
+> ```text
+> ollama pull qwen3:8b
+> ollama create qwen3-8b-8k -f Modelfile
+> ```
+>
+> where `Modelfile` holds two lines: `FROM qwen3:8b` and `PARAMETER num_ctx 8192`. Qwen3 rather than `qwen2.5-coder:7b`, because the coder model writes its tool calls as plain JSON text, so MiniCode, which needs tool calls from Module 5a on, never sees a call to run.
 
 ## Core Concepts
 
@@ -103,7 +110,7 @@ internal static class ChatClientFactory
                 apiKey = Environment.GetEnvironmentVariable(apiKeyVariable);
                 break;
             case "OLLAMA":
-                modelId = "qwen2.5-coder:7b";
+                modelId = "qwen3-8b-8k:latest";
                 endpoint = new Uri("http://localhost:11434/v1/");
                 apiKeyVariable = null;
                 apiKey = "ollama"; // Ollama ignores the key, but the SDK refuses an empty one

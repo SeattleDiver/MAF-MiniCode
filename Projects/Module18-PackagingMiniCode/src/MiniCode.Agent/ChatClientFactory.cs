@@ -12,7 +12,7 @@ namespace MiniCode.Agent;
 internal static class ChatClientFactory
 {
     private const string ProviderVariable = "MINI_CODE_LLM";
-    private const string ModelVariable = "MINICODE_MODEL";
+    private const string ModelVariable = "MINI_CODE_MODEL";
 
     /// <summary>Creates the configured provider's chat client, throwing if a setting is missing.</summary>
     public static IChatClient Create()
@@ -50,7 +50,7 @@ internal static class ChatClientFactory
                 apiKey = Environment.GetEnvironmentVariable(apiKeyVariable);
                 break;
             case "OLLAMA":
-                modelId = "qwen2.5-coder:7b";
+                modelId = "qwen3-8b-8k:latest";
                 endpoint = new Uri("http://localhost:11434/v1/");
                 apiKeyVariable = null;
                 apiKey = "ollama"; // Ollama ignores the key, but the SDK refuses an empty one
@@ -75,7 +75,7 @@ internal static class ChatClientFactory
             throw new InvalidOperationException($"{apiKeyVariable} is not set. Set it before running MiniCode.");
         }
 
-        // MINICODE_MODEL overrides the provider's model; with AZURE it names a deployment.
+        // MINI_CODE_MODEL overrides the provider's model; with AZURE it names a deployment.
         if (Environment.GetEnvironmentVariable(ModelVariable) is { Length: > 0 } configured)
         {
             modelId = configured;

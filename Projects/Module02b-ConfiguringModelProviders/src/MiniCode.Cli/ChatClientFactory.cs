@@ -49,7 +49,7 @@ internal static class ChatClientFactory
                 apiKey = Environment.GetEnvironmentVariable(apiKeyVariable);
                 break;
             case "OLLAMA":
-                modelId = "qwen2.5-coder:7b";
+                modelId = "qwen3-8b-8k:latest";
                 endpoint = new Uri("http://localhost:11434/v1/");
                 apiKeyVariable = null;
                 apiKey = "ollama"; // Ollama ignores the key, but the SDK refuses an empty one

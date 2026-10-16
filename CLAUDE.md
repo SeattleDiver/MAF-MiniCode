@@ -74,7 +74,7 @@ README.md, CLAUDE.md, Projects/
 
 8. Target Microsoft Agent Framework (`Microsoft.Agents.AI` and related packages) on .NET 10. Before writing code for any Module, verify current package names, namespaces, and API signatures — MAF is under active development. Flag breaking changes you find versus older samples.
 9. OpenAI is the default provider, via the first-party `Microsoft.Extensions.AI.OpenAI` package's `IChatClient` implementation. From Module 2b on, `ChatClientFactory` can target Azure OpenAI, Gemini or a local Ollama server instead, chosen at run time by the `MINI_CODE_LLM` environment variable (`OPENAI`, `AZURE`, `GEMINI` or `OLLAMA`; unset means `OPENAI`); all go through the same OpenAI SDK against the provider's OpenAI-compatible endpoint. No other provider or package is used. Demos and Expected Output use the OpenAI default. Verify that package's current version and API surface before writing code.
-10. The default chat model is always `gpt-4.1-mini` — on Azure, the deployment name. The Gemini alternate is pinned to `gemini-2.5-flash`, and the Ollama alternate to `qwen2.5-coder:7b` at `http://localhost:11434/v1/` (no key; the factory passes the placeholder `"ollama"` because the OpenAI SDK refuses an empty one). This course does not use embeddings, RAG, or vector memory — Module 8's context work is search-and-summarize based.
+10. The default chat model is always `gpt-4.1-mini` — on Azure, the deployment name. The Gemini alternate is pinned to `gemini-2.5-flash`, and the Ollama alternate to `qwen3-8b-8k:latest` (`qwen3:8b` with `num_ctx 8192`, created from a two-line Modelfile) at `http://localhost:11434/v1/` (no key; the factory passes the placeholder `"ollama"` because the OpenAI SDK refuses an empty one). This course does not use embeddings, RAG, or vector memory — Module 8's context work is search-and-summarize based.
 11. API keys always come from environment variables (e.g. `OPENAI_API_KEY`). Never hardcode a key. Exactly one type reads the environment — `ChatClientFactory`, from Module 2b on; nothing else calls `Environment.GetEnvironmentVariable`.
 12. Skip presenter dialog and pleasantries — give me material I can present directly.
 13. **Every Module lesson follows this exact structure, and the whole file stays under 300 lines:**
@@ -105,6 +105,7 @@ README.md, CLAUDE.md, Projects/
     - `dotnet test --nologo` reports "Zero tests ran" with exit code 5 on the .NET 10 SDK. Use plain `dotnet test`.
     - `xunit.v3` needs `global.json` selecting `Microsoft.Testing.Platform`, and no `Microsoft.NET.Test.Sdk`.
     - Gemini 3.x models reject tool calls on Gemini's OpenAI-compatible endpoint ("Function call is missing a thought_signature") because the OpenAI SDK cannot carry that field; `gemini-2.5-flash` completes them. Azure's `/openai/v1/` endpoint takes the plain OpenAI SDK, so `Azure.AI.OpenAI` is not needed.
+    - On Ollama 0.40.5, `qwen2.5-coder:7b` returns a tool call as JSON text in `content` (`{"name": "describe_repository", "arguments": {}}`) instead of in `tool_calls`, so no tool ever runs. `qwen3:8b` returns real `tool_calls`.
     - MAF 1.22.0 adds `AIAgent.AsIChatClient()`. It does not collide with the OpenAI `ChatClient.AsIChatClient()` MiniCode calls, because the receiver types differ.
 
 ---

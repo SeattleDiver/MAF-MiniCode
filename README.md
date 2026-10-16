@@ -28,7 +28,7 @@ left for a follow-on advanced MAF course.
 - **OpenAI** by default, via the first-party `Microsoft.Extensions.AI.OpenAI` `IChatClient`. From
   Module 2b, the `MINI_CODE_LLM` environment variable (`OPENAI`, `AZURE`, `GEMINI` or `OLLAMA`) switches to
   Azure OpenAI, Gemini or a local Ollama model instead.
-- Default chat model is **`gpt-4.1-mini`** (`gemini-2.5-flash` on Gemini, `qwen2.5-coder:7b` on Ollama). No embeddings, RAG, or vector memory — context
+- Default chat model is **`gpt-4.1-mini`** (`gemini-2.5-flash` on Gemini, `qwen3-8b-8k` on Ollama, a local `qwen3:8b` with an 8K context). No embeddings, RAG, or vector memory — context
   management is search-and-summarize based (Module 8).
 - API key comes from the `OPENAI_API_KEY` environment variable, or the selected provider's own.
 

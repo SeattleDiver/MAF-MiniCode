@@ -14,7 +14,7 @@ Sixth and last Module of Phase 4. Ships as part of **Phase 4 Capstone — Develo
 
 ## Setup
 
-No new package. `MiniCode.Cli.csproj` gains a second `PropertyGroup` — `PackAsTool`, `ToolCommandName`, `PackageId`, `Version` — with nothing to install for it. One new, optional environment variable: `MINICODE_MODEL`. Set it to run against a different chat model; leave it unset and MiniCode still targets `gpt-4.1-mini`, exactly as every prior Module has.
+No new package. `MiniCode.Cli.csproj` gains a second `PropertyGroup` — `PackAsTool`, `ToolCommandName`, `PackageId`, `Version` — with nothing to install for it. One new, optional environment variable: `MINI_CODE_MODEL`. Set it to run against a different chat model; leave it unset and MiniCode still targets `gpt-4.1-mini`, exactly as every prior Module has.
 
 ## Core Concepts
 
@@ -22,9 +22,9 @@ No new package. `MiniCode.Cli.csproj` gains a second `PropertyGroup` — `PackAs
 
 **The whole dependency graph packs for free.** `dotnet pack src/MiniCode.Cli` pulls in `MiniCode.Agent`, `MiniCode.Tools`, `MiniCode.Workspace` and `MiniCode.Infrastructure` the same way `dotnet run` already does — a tool package is built from the same output, not a separately-maintained bundle.
 
-**Configuration still means exactly one type reading the environment.** `ChatClientFactory` has been the only place in the solution that calls `Environment.GetEnvironmentVariable` since Module 2b — first for the provider and its key, now for `MINICODE_MODEL` too. One more variable, one reader, same rule.
+**Configuration still means exactly one type reading the environment.** `ChatClientFactory` has been the only place in the solution that calls `Environment.GetEnvironmentVariable` since Module 2b — first for the provider and its key, now for `MINI_CODE_MODEL` too. One more variable, one reader, same rule.
 
-**The default is still the default.** With OpenAI selected, `modelId` is still the literal `"gpt-4.1-mini"` this course has used throughout — `MINICODE_MODEL` is something an operator can set, not something MiniCode ever changes on its own.
+**The default is still the default.** With OpenAI selected, `modelId` is still the literal `"gpt-4.1-mini"` this course has used throughout — `MINI_CODE_MODEL` is something an operator can set, not something MiniCode ever changes on its own.
 
 **Two version numbers, kept in sync by convention, not by code.** `MiniCodeVersion.Current` is what the startup banner prints; `<Version>` in `MiniCode.Cli.csproj` is what `dotnet pack` stamps on the `.nupkg`. Nothing reads one from the other — they move together because a Phase Capstone is the only place either one is touched, the same discipline that already governs `MiniCodeVersion.Current` alone.
 
@@ -48,13 +48,13 @@ Model configuration, from `src/MiniCode.Agent/ChatClientFactory.cs`:
 
 ```csharp
     private const string ProviderVariable = "MINI_CODE_LLM";
-    private const string ModelVariable = "MINICODE_MODEL";
+    private const string ModelVariable = "MINI_CODE_MODEL";
 ```
 
 and, after the checks that follow the provider `switch`:
 
 ```csharp
-        // MINICODE_MODEL overrides the provider's model; with AZURE it names a deployment.
+        // MINI_CODE_MODEL overrides the provider's model; with AZURE it names a deployment.
         if (Environment.GetEnvironmentVariable(ModelVariable) is { Length: > 0 } configured)
         {
             modelId = configured;
@@ -65,13 +65,13 @@ and, after the checks that follow the provider `switch`:
             .AsIChatClient();
 ```
 
-Each provider's `case` still sets its own `modelId`; once the checks after the `switch` pass, `MINICODE_MODEL` may replace it, just before the one call site that uses it. With `MINI_CODE_LLM=AZURE`, `MINICODE_MODEL` names a deployment. Nothing else in the factory changes, and `CodingAgentFactory` does not change at all.
+Each provider's `case` still sets its own `modelId`; once the checks after the `switch` pass, `MINI_CODE_MODEL` may replace it, just before the one call site that uses it. With `MINI_CODE_LLM=AZURE`, `MINI_CODE_MODEL` names a deployment. Nothing else in the factory changes, and `CodingAgentFactory` does not change at all.
 
 ## Walkthrough
 
 1. **`PackAsTool` requires an `Exe` output type and a `ToolCommandName`.** MiniCode already had the first; the second is the only new decision this Module makes — `minicode`, lowercase, matching the syllabus's own example exactly.
 2. **`PackageId` is independent of `AssemblyName`.** The assembly is still `MiniCode.Cli.dll`; the installable package is `MiniCode`, and the command an operator types is `minicode` — three names, three separate properties, none inferred from the others.
-3. **`Environment.GetEnvironmentVariable(ModelVariable) is { Length: > 0 } configured` treats an empty string the same as an unset variable.** Setting `MINICODE_MODEL=` in a shell should not silently ask the provider for a model named `""`.
+3. **`Environment.GetEnvironmentVariable(ModelVariable) is { Length: > 0 } configured` treats an empty string the same as an unset variable.** Setting `MINI_CODE_MODEL=` in a shell should not silently ask the provider for a model named `""`.
 4. **The `apiKey is null` check for the key and the `is { Length: > 0 }` test for the model differ on purpose.** One is required and fails loudly; the other is optional and falls back quietly — the shape of each expression matches which behavior it is.
 5. **No file in `MiniCode.Cli` other than the `.csproj` changed.** `Program.cs`'s workspace resolution, written for `dotnet run` and never touched since, is exactly what makes `cd CustomerPortal && minicode` work — packaging exposed that it was already correct rather than requiring it to become correct.
 
