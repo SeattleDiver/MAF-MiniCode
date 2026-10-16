@@ -77,17 +77,21 @@ ModuleNN-TitleInPascalCase/
     src/MiniCode.Tools/              tools exposed to the model
     src/MiniCode.Workspace/          repository boundaries and filesystem access
     src/MiniCode.Infrastructure/     shell, Git, config, approval, telemetry
+    sample/CustomerPortal/           the repository MiniCode works on (Module 5a onward)
 ```
 
 Folders are cumulative snapshots: opening `ModuleNN-Title/` alone (no other folder present)
-builds and runs. To record Module N, start from Module N−1's folder and build up to what
+builds and runs. From Module 5a on, pressing F5 in Visual Studio starts MiniCode with
+`sample/CustomerPortal/` as its workspace; each folder's copy of the sample is staged for that
+lesson's lab. To record Module N, start from Module N−1's folder and build up to what
 Module N adds. Phase Capstone folders are full integration checkpoints at that Phase's
 version number, introducing no concept absent from `syllabus.md`.
 
 Unit tests are a private verification harness only (`verification/MiniCode.Verify.slnx`,
 `verification/MiniCode.Tests/`) — they exist so the presented code can be trusted, but no
-test project ever appears in a Module or Capstone folder, and no test code is shown on
-camera.
+MiniCode test project ever appears in a Module or Capstone folder, and no MiniCode test code
+is shown on camera. The sample's own `CustomerPortal.Tests` is lab material for the agent to
+run, not part of that harness.
 
 ## Status
 

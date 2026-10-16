@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MiniCode.Cli": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)..\\..\\sample\\CustomerPortal"
+    }
+  }
+}

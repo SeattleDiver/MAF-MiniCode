@@ -122,7 +122,9 @@ A Capstone is **not** a new topic. It consolidates the Phase, tightens the seams
 
 ## Notes for recording
 
-- **The `verification/` folder is not part of the course.** It is a private test harness so the presented code can be trusted. No test code appears in any lesson, and no Module folder contains a test project.
-- **`AGENTS.md` at a Module folder root is a lab fixture**, from Module 7 onward — it is what MiniCode discovers when pointed at its own folder.
+- **The `verification/` folder is not part of the course.** It is a private test harness so the presented code can be trusted. No test code appears in any lesson, and no MiniCode project in a Module folder is a test project — the sample's `CustomerPortal.Tests` is lab material, not ours.
+- **`sample/CustomerPortal/` is what MiniCode works on**, from Module 5a onward. Each folder's copy is staged for that lesson's lab: a dropped semicolon in 11a, 11b, 12 and the Phase 3 Capstone, a failing `Create_TrimsTheName` test in 13, the clean baseline everywhere else. Pressing F5 in Visual Studio starts MiniCode on it (`src/MiniCode.Cli/Properties/launchSettings.json`); from a terminal, `dotnet run --project src/MiniCode.Cli -- sample/CustomerPortal`.
+- **`sample/CustomerPortal/AGENTS.md` is a lab fixture**, from Module 7 onward — it is what MiniCode discovers in the sample's root.
+- **From Module 14 on, `git init` the sample once** before recording. It sits inside the course repository, so without its own `.git` every Git command walks up to the course repo.
 - **The console banner is fixed for the whole series** (`MiniCode. Type 'exit' to quit.`) so it never needs re-recording. The version line above it changes only at a Capstone.
 - **`OPENAI_API_KEY` must be set** for any video from 2 onward. Module 4 is the one lesson whose demonstration needs no key.

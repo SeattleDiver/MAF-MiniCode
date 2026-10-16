@@ -16,6 +16,8 @@ First Module of Phase 3. Ships as part of **Phase 3 Capstone — Autonomous Fixe
 
 Nothing new to install. `System.Security.Cryptography` is in the shared framework, so `MiniCode.Workspace` still has zero package references.
 
+The lab edits this folder's `sample/CustomerPortal`, which builds clean as shipped.
+
 ## Core Concepts
 
 **Prefer a targeted edit over rewriting a file.** Handing a model a whole file and taking back a whole file invites it to reformat, drop a using it did not understand, or silently lose the part it was not thinking about. Replacing one anchored fragment cannot do any of those.
@@ -30,7 +32,7 @@ Nothing new to install. `System.Security.Cryptography` is in the shared framewor
 
 **A refusal must be a sentence the model can act on.** *"That text appears more than once. Include enough context to make it unique."* is a usable instruction. `ArgumentException` is not. None of these methods contain a `try` — they throw, and Module 5a's `DirectToolInvoker` turns the throw into text, exactly as it has since the read tools.
 
-**Showing the modification.** Both tools report what happened and hand back the new fingerprint: `Edited src/Customer.cs at line 7. Fingerprint 265f548e7c18.` The line number lets the model cite the change, and the fingerprint means the next edit can be guarded without reading the file again.
+**Showing the modification.** Both tools report what happened and hand back the new fingerprint: `Edited src/CustomerPortal.Core/Customer.cs at line 4. Fingerprint c6631053f77c.` The line number lets the model cite the change, and the fingerprint means the next edit can be guarded without reading the file again.
 
 **What this Module deliberately does not do.** Nobody is asked for permission. MiniCode can now change your files because a language model decided to, and Module 15 is where a human finally gets a say. Encoding and line endings are the Exercise.
 
@@ -144,7 +146,7 @@ The fingerprint itself is one line, and `ReadFile` now appends it:
 5. **The uniqueness check uses `IndexOf` from `first + 1`** rather than counting every occurrence. It only matters whether there is a second one.
 6. **The replacement is `string.Concat` on three slices.** No regex, no line splitting — so whatever line endings surrounded the anchor are still there afterwards, untouched, because they were never parsed.
 7. **`Directory.CreateDirectory` before writing** means `write_file` can create `src/Models/Customer.cs` when `Models` does not exist yet, which is what creating a file usually means in practice.
-8. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
+8. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/CustomerPortal.Core/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
 
 ## Exercise
 
@@ -156,55 +158,49 @@ Neither has a reference implementation in a later Module folder.
 
 ## Expected Output
 
-All of the following is real output from this Module's code, against a temporary repository containing one `Customer.cs`.
+All of the following is real output from this Module's code, calling the tools through `ToolCatalog` against a copy of this folder's `sample/CustomerPortal`.
 
 A read now ends with a fingerprint:
 
 ```text
-     1  namespace Shop;
+     1  namespace CustomerPortal.Core;
      2  
-     3  public sealed class Customer
-     4  {
-     5      public int Id { get; set; }
-     6  
-     7      public string Name { get; set; } = string.Empty;
-     8  }
-Fingerprint f260c10b23b8 - pass this as expectedFingerprint when editing.
+     3  /// <summary>A customer of the portal.</summary>
+     4  public sealed record Customer(string Name, string? Email);
+Fingerprint 77da90b30f2e - pass this as expectedFingerprint when editing.
 ```
 
-The lab's edit — *add an EmailAddress property to Customer* — anchored on the `Name` property:
+The lab's edit — *add a Phone property to Customer* — anchored on `string? Email);`, with the fingerprint from that read:
 
 ```text
-Edited src/Customer.cs at line 7. Fingerprint 265f548e7c18.
+Edited src/CustomerPortal.Core/Customer.cs at line 4. Fingerprint c6631053f77c.
 ```
 
 Then the three refusals, each one a sentence the model can act on:
 
 ```text
-edit_file failed: 'src/Customer.cs' has changed since you read it (now 265f548e7c18). Read it again.
-edit_file failed: That text appears more than once in 'src/Customer.cs'. Include enough context to make it unique.
-write_file failed: 'src/Customer.cs' already exists. Read it first, or pass overwrite: true to replace it.
+edit_file failed: 'src/CustomerPortal.Core/Customer.cs' has changed since you read it (now c6631053f77c). Read it again.
+edit_file failed: That text appears more than once in 'src/CustomerPortal.Core/Customer.cs'. Include enough context to make it unique.
+write_file failed: 'src/CustomerPortal.Core/Customer.cs' already exists. Read it first, or pass overwrite: true to replace it.
 ```
 
-The first is the important one. That fingerprint was valid a moment earlier; the edit that used it changed the file, so the *next* edit carrying the same fingerprint is refused. Creating a new file is unremarkable, which is the point:
+The first is the important one. That fingerprint was valid a moment earlier; the edit that used it changed the file, so the *next* edit carrying the same fingerprint is refused. The second anchored on `string?`, which now appears twice. Creating a new file is unremarkable, which is the point:
 
 ```text
-Wrote src/Order.cs (4 lines). Fingerprint e4d10c4aa332.
+Wrote src/CustomerPortal.Core/Order.cs (5 lines). Fingerprint f6a1d20964ce.
 ```
 
-And the file on disk afterwards:
+(Five, not four: the content ends in a newline, and `WriteFile` counts the empty segment after it.) And `Customer.cs` on disk afterwards:
 
 ```text
-namespace Shop;
+namespace CustomerPortal.Core;
 
-public sealed class Customer
+/// <summary>A customer of the portal.</summary>
+public sealed record Customer(string Name, string? Email)
 {
-    public int Id { get; set; }
-
-    public string Name { get; set; } = string.Empty;
-
-    public string EmailAddress { get; set; } = string.Empty;
+    /// <summary>An optional contact number.</summary>
+    public string? Phone { get; init; }
 }
 ```
 
-One property added, blank lines and indentation intact, nothing else in the file touched. That is what a targeted edit buys you over handing the model the whole file and hoping.
+One property added, the doc comment and the positional parameters intact, nothing else in the file touched — and `dotnet build` on the sample still succeeds. That is what a targeted edit buys you over handing the model the whole file and hoping.

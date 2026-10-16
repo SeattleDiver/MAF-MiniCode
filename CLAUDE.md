@@ -16,7 +16,7 @@ Every rule below that says "include X" is bounded by the budgets in this section
 |---|---|
 | Lesson `.md` length | **under 300 lines** |
 | C# shown in one lesson | **at most 125 lines** — what I can present at a reasonable pace on camera |
-| Whole MiniCode solution, when finished | **under ~2,500 lines of C#** across **under ~50 files** |
+| Whole MiniCode solution, when finished | **under ~2,500 lines of C#** across **under ~50 files** (`sample/` excluded) |
 | Test code shown to viewers | **none — see rule 28** |
 
 **Scope is the syllabus's topic list and nothing more.** Cover the topics that Module's syllabus section names, then stop. Do not harden beyond what is named, do not add cases the syllabus does not mention, do not model a result type where a string or a small record will do. If a Module feels thin against the topic list, it is probably right.
@@ -43,6 +43,7 @@ Projects/
         src/MiniCode.Tools/              tools exposed to the model
         src/MiniCode.Workspace/          repository boundaries and filesystem access
         src/MiniCode.Infrastructure/     shell, Git, config, approval, telemetry
+        sample/CustomerPortal/           the repository MiniCode works on (Module 5a onward)
 
     PhaseN-Capstone-TitleInPascalCase/
         PhaseN Capstone - Title.md
@@ -59,7 +60,10 @@ README.md, CLAUDE.md, Projects/
 1. **Folders are cumulative snapshots, and each one stands alone.** Open `Projects/ModuleNN-Title/` in VS2026 with no other folder present and it restores, builds and runs. The viewer never retypes earlier work; I never delete anything to get to a starting point.
 2. **The recording workflow this exists to serve.** To record Module N, open **Module N−1's** folder under `Projects/` — already complete, nothing to strip out — and build up to what Module N's folder contains. Module N's lesson names that starting folder in its Prerequisites. Module 2a starts from an empty project.
 3. **Generating Module N means: copy Module N−1's solution into `Projects/ModuleNN-Title/`, apply this Module's changes, then write the lesson.** Files this Module does not touch stay byte-for-byte identical to the previous folder, so a viewer diffing two folders sees only what the lesson explains.
-4. **Module folders never contain a test project.** Neither do Phase Capstones. See rule 28. A Module folder may hold the slide deck for that lesson and one small fixture file if its lab needs one; those are lesson assets, not part of the solution.
+4. **Module folders never contain a MiniCode test project.** Neither do Phase Capstones. See rule 28. A Module folder may hold the slide deck for that lesson; it is a lesson asset, not part of the solution.
+    - **From Module 5a on, every folder also ships `sample/CustomerPortal/`**: a small Core + xunit.v3 Tests solution that MiniCode works on. Its test project is lab material for the agent to run, not our harness. It is never in `MiniCode.slnx`, and the solution budgets exclude it. Its `AGENTS.md` is the Module 7+ lab fixture.
+    - **Each folder's sample is staged for that lesson's lab**: a dropped semicolon in `CustomerService.cs` in 11a, 11b, 12 and the Phase 3 Capstone, a failing `Create_TrimsTheName` test in 13, the clean baseline elsewhere. A sample change is a lesson change, and the lesson explains it.
+    - **`src/MiniCode.Cli/Properties/launchSettings.json` starts the CLI in the sample**: `"workingDirectory": "$(ProjectDir)..\\..\\sample\\CustomerPortal"`. That makes F5 in Visual Studio work on it. `dotnet run` ignores `workingDirectory`, so terminal runs pass `-- sample/CustomerPortal`. No profile sets `MINI_CODE_LLM`.
 5. Module folders are named `ModuleNN-TitleInPascalCase` (zero-padded, hyphen separator, no underbars). Phase Capstone folders are named `PhaseN-Capstone-TitleInPascalCase`.
 6. Never leave `bin/`, `obj/`, `.vs/` or `TestResults/` anywhere.
 7. **Duplication between folders is intended, not waste.** It is what makes each lesson standalone. It stays affordable only because the finished solution is under ~50 files — which is what the budgets above are protecting.
@@ -131,8 +135,8 @@ README.md, CLAUDE.md, Projects/
 
 28. **Unit tests are ours, not the viewer's.** They exist so I can trust the code I present; they are never part of the course.
     - Tests live in `verification/MiniCode.Tests/`, referenced only by `verification/MiniCode.Verify.slnx`, which points at the most recent Module folder under `Projects/`. A Module folder’s own `MiniCode.slnx` contains only that Module’s `src/` projects.
-    - **Never show test code in a lesson.** No test file appears under a heading, in a code block, or in an inventory. Never cite a test as evidence to the viewer; if a claim matters, demonstrate it in Expected Output instead.
-    - Module folders and Phase Capstones contain `src/` only. No `verification/`, no test project, ever.
+    - **Never show test code in a lesson.** No test file appears under a heading, in a code block, or in an inventory. Never cite a test as evidence to the viewer; if a claim matters, demonstrate it in Expected Output instead. (The sample's `CustomerPortal.Tests` output — what the agent's `dotnet test` reports — is lab material and may appear in Expected Output.)
+    - Module folders and Phase Capstones contain `src/` and, from Module 5a, `sample/` only. No `verification/`, no MiniCode test project, ever.
     - Keep the harness small — it is a gate, not a deliverable. A handful of tests per Module covering what would be embarrassing to get wrong on camera is enough.
     - An **Exercise** may state acceptance criteria in prose ("a path containing `..` should be refused"). It must not hand the viewer a test file.
 29. Before declaring a Module done:

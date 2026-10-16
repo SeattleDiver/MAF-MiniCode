@@ -16,6 +16,8 @@ First half of Module 11. Ships as part of **Phase 3 Capstone — Autonomous Fixe
 
 Nothing to install. `System.Diagnostics.Process` is in the shared framework, so `MiniCode.Infrastructure` gets its first files here and still has zero package references.
 
+This folder's sample ships with a dropped semicolon in `sample/CustomerPortal/src/CustomerPortal.Core/CustomerService.cs` — the lab's starting point.
+
 ## Core Concepts
 
 **A tool that can only read has a small blast radius. A tool that can run any program does not.** `dotnet build` and a destructive command are the same C# call away. "Safely" in this Module's title is about the mechanics — no shell, a timeout, output you can actually read — not yet about which commands are allowed. That restriction is Module 11b.
@@ -157,36 +159,41 @@ Add an optional workspace-relative `workingDirectory` parameter to `RunCommand`,
 
 ## Expected Output
 
-All of the following is real output from this Module's code, calling `ShellTools.RunCommand` against a temporary console project.
+All of the following is real output from this Module's code, calling `run_command` through `ToolCatalog` against a copy of this folder's `sample/CustomerPortal` (path prefixes trimmed to `...\` for space; the line, column and message are exactly what `dotnet build` printed).
 
-A clean build:
-
-```text
-Exit code 0
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Shop -> ...\bin\Debug\net10.0\Shop.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:01.17
-```
-
-The Lab's scenario — a dropped semicolon in `Program.cs`, then the same command again (path prefix trimmed for space; the line, column and message are exactly what `dotnet build` printed):
+The Lab's scenario — `run_command("dotnet", ["build"])` on the sample as shipped, with its dropped semicolon:
 
 ```text
 Exit code 1
   Determining projects to restore...
   All projects are up-to-date for restore.
-Program.cs(1,35): error CS1002: ; expected [...\Shop.csproj]
+...\src\CustomerPortal.Core\CustomerService.cs(15,33): error CS1002: ; expected [...\CustomerPortal.Core.csproj]
 
 Build FAILED.
 
-Program.cs(1,35): error CS1002: ; expected [...\Shop.csproj]
+...\src\CustomerPortal.Core\CustomerService.cs(15,33): error CS1002: ; expected [...\CustomerPortal.Core.csproj]
     0 Warning(s)
     1 Error(s)
+
+Time Elapsed 00:00:00.62
+```
+
+The same command after restoring the semicolon on line 15 by hand:
+
+```text
+Exit code 0
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CustomerPortal.Core -> ...\src\CustomerPortal.Corein\Debug
+et10.0\CustomerPortal.Core.dll
+  CustomerPortal.Tests -> ...	ests\CustomerPortal.Testsin\Debug
+et10.0\CustomerPortal.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.76
 ```
 
 A command that runs past its timeout — `run_command("ping", ["-n", "6", "127.0.0.1"], timeoutSeconds: 1)`:
@@ -198,7 +205,7 @@ A command that runs past its timeout — `run_command("ping", ["-n", "6", "127.0
 And a program that does not exist, through the full invoker chain exactly as Module 5a wired it — a throw becomes text, never an unhandled exception:
 
 ```text
-run_command failed: An error occurred trying to start process 'this-program-does-not-exist' with working directory '...'. The system cannot find the file specified.
+run_command failed: An error occurred trying to start process 'this-program-does-not-exist' with working directory '...\CustomerPortal'. The system cannot find the file specified.
 ```
 
 The exit code and both streams tell the model what happened; the timeout and the missing-program cases each say so in one plain sentence instead. Module 11b decides which of these commands should have been allowed to start at all.
