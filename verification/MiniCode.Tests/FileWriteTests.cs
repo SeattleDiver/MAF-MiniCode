@@ -55,6 +55,31 @@ public sealed class FileWriteTests : IDisposable
     }
 
     [Fact]
+    public void MatchesAnAnchorWithTheWrongIndentationAndReindentsTheReplacement()
+    {
+        Seed("class C\n{\n    int a;\n    int b;\n}\n");
+        Assert.Equal(3, _files.EditFile("a.cs", "        int a;\n        int b;\n", "        int a;\n        int c;\n"));
+        Assert.Equal("class C\n{\n    int a;\n    int c;\n}\n", File.ReadAllText(Path.Combine(_root, "a.cs")));
+    }
+
+    [Fact]
+    public void RefusesAnIndentationTolerantMatchThatIsNotUnique()
+    {
+        Seed("    x();\n        x();\n");
+        var ex = Assert.Throws<InvalidOperationException>(() => _files.EditFile("a.cs", "x();", "y();"));
+        Assert.Contains("more than once", ex.Message);
+    }
+
+    [Fact]
+    public void ARefusalNamesTheClosestLine()
+    {
+        Seed("class C\n{\n    private readonly List<int> _items = [];\n}\n");
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => _files.EditFile("a.cs", "private List<int> _items = [];", "y"));
+        Assert.Contains("closest line is 3: \"    private readonly List<int> _items = [];\"", ex.Message);
+    }
+
+    [Fact]
     public void RefusesAnAmbiguousAnchorAndChangesNothing()
     {
         Seed("x\nx\n");

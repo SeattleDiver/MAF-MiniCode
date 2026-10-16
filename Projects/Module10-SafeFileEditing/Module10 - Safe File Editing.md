@@ -30,7 +30,9 @@ The lab edits this folder's `sample/CustomerPortal`, which builds clean as shipp
 
 **Creating a file and replacing one are different intentions.** `write_file` refuses an existing path unless `overwrite: true` is passed explicitly. The common case — write a new file — is safe by default, and destroying an existing one requires saying so.
 
-**A refusal must be a sentence the model can act on.** *"That text appears more than once. Include enough context to make it unique."* is a usable instruction. `ArgumentException` is not. None of these methods contain a `try` — they throw, and Module 5a's `DirectToolInvoker` turns the throw into text, exactly as it has since the read tools.
+**A refusal must be a sentence the model can act on.** *"That text appears more than once. Include enough context to make it unique."* is a usable instruction. `ArgumentException` is not. When the text is not found, the refusal quotes the closest line in the file, so the model's next attempt starts from what is really there.
+
+**Indentation is the mistake models make most.** `read_file` puts a line number before each line, and a model easily miscounts where the number's padding ends and the code's indentation begins. If the exact match fails, `edit_file` tries again ignoring each line's leading whitespace. The match must still be unique, and the replacement is re-indented to fit the file. None of these methods contain a `try` — they throw, and Module 5a's `DirectToolInvoker` turns the throw into text, exactly as it has since the read tools.
 
 **Showing the modification.** Both tools report what happened and hand back the new fingerprint: `Edited src/CustomerPortal.Core/Customer.cs at line 4. Fingerprint c6631053f77c.` The line number lets the model cite the change, and the fingerprint means the next edit can be guarded without reading the file again.
 
@@ -114,11 +116,18 @@ And changing one — the three refusals are most of the method:
         string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string anchor = (find ?? string.Empty).ReplaceLineEndings(newline);
         replace = (replace ?? string.Empty).ReplaceLineEndings(newline);
-        int first = text.IndexOf(anchor, StringComparison.Ordinal);
-
-        if (anchor.Length == 0 || first < 0)
+        if (anchor.Trim().Length == 0)
         {
             throw new InvalidOperationException($"That text does not appear in '{path}'.");
+        }
+
+        int first = text.IndexOf(anchor, StringComparison.Ordinal);
+        if (first < 0)
+        {
+            // Models often miscount indentation, so retry ignoring each line's
+            // leading whitespace, and indent the replacement to match the file.
+            (first, anchor, replace) = MatchIgnoringIndentation(path, text, anchor, replace, newline)
+                ?? throw new InvalidOperationException(NotFoundMessage(path, text, anchor));
         }
 
         if (text.IndexOf(anchor, first + 1, StringComparison.Ordinal) >= 0)
@@ -131,6 +140,8 @@ And changing one — the three refusals are most of the method:
         return text[..first].Count(c => c == '\n') + 1;
     }
 ```
+
+`MatchIgnoringIndentation` and `NotFoundMessage` live in the same file. The first finds the anchor's lines with leading whitespace ignored and re-indents the replacement by the same offset. The second finds the file line that shares the longest prefix with the anchor's first line.
 
 The fingerprint itself is one line, and `ReadFile` now appends it:
 
@@ -149,9 +160,10 @@ The fingerprint itself is one line, and `ReadFile` now appends it:
 4. **Twelve hex characters, not sixty-four.** The model copies this string; every character costs context. Twelve is ample for detecting change, and this is a staleness check rather than a security boundary.
 5. **The uniqueness check uses `IndexOf` from `first + 1`** rather than counting every occurrence. It only matters whether there is a second one.
 6. **Line endings follow the file, not the model.** A model often writes `\r\n` into `find` for a file that uses `\n`, and an exact match would then never succeed. `ReplaceLineEndings` converts `find` and `replace` to the file's own convention first, so the match stays exact and the file keeps one style.
-7. **The replacement is `string.Concat` on three slices.** No regex, no line splitting.
-8. **`Directory.CreateDirectory` before writing** means `write_file` can create `src/Models/Customer.cs` when `Models` does not exist yet, which is what creating a file usually means in practice.
-9. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/CustomerPortal.Core/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
+7. **The exact match is tried first; the indentation-tolerant one only when it fails.** A correct anchor never goes through the looser path, and the looser path refuses an ambiguous match the same way.
+8. **The replacement is `string.Concat` on three slices.** No regex, no line splitting.
+9. **`Directory.CreateDirectory` before writing** means `write_file` can create `src/Models/Customer.cs` when `Models` does not exist yet, which is what creating a file usually means in practice.
+10. **Module 8b's working state now knows the difference.** A `write_file` or `edit_file` call records `src/CustomerPortal.Core/Customer.cs (modified)` rather than the plain path a read produces, and the modified note supersedes the read note for the same file. Without that, a compaction leaves the agent knowing it *looked at* a file it had actually changed — which is how an agent redoes work it already did.
 
 ## Exercise
 

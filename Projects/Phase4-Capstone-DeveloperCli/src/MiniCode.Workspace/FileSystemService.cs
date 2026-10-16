@@ -51,11 +51,18 @@ public sealed class FileSystemService(IWorkspace workspace) : IFileSystemService
         string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         string anchor = (find ?? string.Empty).ReplaceLineEndings(newline);
         replace = (replace ?? string.Empty).ReplaceLineEndings(newline);
-        int first = text.IndexOf(anchor, StringComparison.Ordinal);
-
-        if (anchor.Length == 0 || first < 0)
+        if (anchor.Trim().Length == 0)
         {
             throw new InvalidOperationException($"That text does not appear in '{path}'.");
+        }
+
+        int first = text.IndexOf(anchor, StringComparison.Ordinal);
+        if (first < 0)
+        {
+            // Models often miscount indentation, so retry ignoring each line's
+            // leading whitespace, and indent the replacement to match the file.
+            (first, anchor, replace) = MatchIgnoringIndentation(path, text, anchor, replace, newline)
+                ?? throw new InvalidOperationException(NotFoundMessage(path, text, anchor));
         }
 
         if (text.IndexOf(anchor, first + 1, StringComparison.Ordinal) >= 0)
@@ -67,6 +74,81 @@ public sealed class FileSystemService(IWorkspace workspace) : IFileSystemService
         File.WriteAllText(file, string.Concat(text[..first], replace, text[(first + anchor.Length)..]));
         return text[..first].Count(c => c == '\n') + 1;
     }
+
+    private static (int Start, string Matched, string Replacement)? MatchIgnoringIndentation(
+        string? path, string text, string anchor, string replacement, string newline)
+    {
+        string[] lines = text.Split(newline);
+        string[] wanted = anchor.TrimEnd('\r', '\n').Split(newline);
+        bool endsWithNewline = anchor.EndsWith(newline, StringComparison.Ordinal);
+
+        List<int> starts = [];
+        for (int i = 0; i + wanted.Length <= lines.Length; i++)
+        {
+            if (wanted.Select((line, j) => line.Trim() == lines[i + j].Trim()).All(same => same)
+                && (!endsWithNewline || i + wanted.Length < lines.Length))
+            {
+                starts.Add(i);
+            }
+        }
+
+        if (starts.Count == 0)
+        {
+            return null;
+        }
+
+        if (starts.Count > 1)
+        {
+            throw new InvalidOperationException(
+                $"That text appears more than once in '{path}'. Include enough context to make it unique.");
+        }
+
+        int start = starts[0];
+        int sample = Array.FindIndex(wanted, line => line.Trim().Length > 0);
+        string wantedIndent = Indent(wanted[sample]);
+        string fileIndent = Indent(lines[start + sample]);
+        string reindented = string.Join(newline, replacement.Split(newline).Select(line =>
+            line.Length > 0 && line.StartsWith(wantedIndent, StringComparison.Ordinal)
+                ? fileIndent + line[wantedIndent.Length..]
+                : line));
+
+        int offset = lines.Take(start).Sum(line => line.Length + newline.Length);
+        string matched = string.Join(newline, lines.Skip(start).Take(wanted.Length)) + (endsWithNewline ? newline : "");
+        return (offset, matched, reindented);
+    }
+
+    // The closest line by shared prefix, so a refused edit tells the model what
+    // the file actually says instead of only that it was wrong.
+    private static string NotFoundMessage(string? path, string text, string anchor)
+    {
+        string message = $"That text does not appear in '{path}'.";
+        string wanted = anchor.Split('\n').Select(line => line.Trim()).First(line => line.Length > 0);
+        string[] lines = text.Split('\n');
+
+        int best = -1;
+        int bestShared = 0;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i].Trim();
+            int shared = 0;
+            while (shared < line.Length && shared < wanted.Length && line[shared] == wanted[shared])
+            {
+                shared++;
+            }
+
+            if (shared > bestShared)
+            {
+                (best, bestShared) = (i, shared);
+            }
+        }
+
+        return bestShared < Math.Min(wanted.Length, 8)
+            ? message
+            : $"{message} The closest line is {best + 1}: \"{lines[best].TrimEnd('\r')}\". "
+              + "Copy the file's text exactly, indentation included.";
+    }
+
+    private static string Indent(string line) => line[..(line.Length - line.TrimStart().Length)];
 
     /// <inheritdoc />
     public IReadOnlyList<string> ListFiles(string? path, bool recursive = false)
