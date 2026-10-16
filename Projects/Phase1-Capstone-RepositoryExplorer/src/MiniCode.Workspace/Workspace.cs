@@ -6,7 +6,7 @@ namespace MiniCode.Workspace;
 /// </summary>
 public sealed class Workspace : IWorkspace
 {
-    private static readonly string[] IgnoredDirectories = [".git", "bin", "obj", "node_modules"];
+    private static readonly string[] IgnoredDirectories = [".git", ".vs", "bin", "obj", "node_modules"];
 
     private static readonly StringComparison Comparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;

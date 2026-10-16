@@ -30,7 +30,7 @@ Nothing new. `MiniCode.Workspace` needs no packages; everything here comes from 
 
 **Refusing is not an error.** `ValidatePath` returns a result and never throws, because from Module 5b its caller is a tool that must hand the model a sentence it can act on. A thrown exception in that position costs the agent its turn and tells it nothing. `ResolvePath` throws, for the internal callers who treat a refusal as a bug.
 
-**Some directories are inside the root and still off limits.** `.git`, `bin`, `obj`, `node_modules`. `.git` is the dangerous one: an agent writing there can rewrite history rather than code.
+**Some directories are inside the root and still off limits.** `.git`, `.vs`, `bin`, `obj`, `node_modules`. `.git` is the dangerous one: an agent writing there can rewrite history rather than code. `.vs` is Visual Studio's own state, which an agent has no reason to read.
 
 **Case sensitivity is the platform's business, not ours.** `Program.cs` and `program.cs` are one file on Windows and two on Linux. Choose the comparison from `OperatingSystem.IsWindows()` rather than picking one and being wrong half the time.
 
@@ -109,7 +109,7 @@ namespace MiniCode.Workspace;
 /// </summary>
 public sealed class Workspace : IWorkspace
 {
-    private static readonly string[] IgnoredDirectories = [".git", "bin", "obj", "node_modules"];
+    private static readonly string[] IgnoredDirectories = [".git", ".vs", "bin", "obj", "node_modules"];
 
     private static readonly StringComparison Comparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
