@@ -139,6 +139,7 @@ What `RunStreamingAsync` logs for the model's own words, from `src/MiniCode.Agen
         _guard.Reset();
         _usedTokens += TokenEstimator.Estimate(request);
         _agentLog.LogInformation("Task started");
+        var said = new StringBuilder();
 
         await foreach (AgentResponseUpdate update in
             _agent.RunStreamingAsync(request, _session, cancellationToken: cancellationToken))
@@ -148,14 +149,18 @@ What `RunStreamingAsync` logs for the model's own words, from `src/MiniCode.Agen
 
             if (fragment.Length > 0)
             {
-                // TracingInvoker logs every tool call already, so only the model's
-                // own words are traced here — logging the tool announcement below
-                // too would report the same call under two different categories.
-                _agentLog.LogInformation("{Text}", fragment.Trim());
+                // The model's words arrive a few characters per update, so they are
+                // collected and traced as one line rather than one line per fragment.
+                // TracingInvoker logs every tool call already, so only words are traced.
+                said.Append(fragment);
                 yield return fragment;
                 continue;
             }
+
+            TraceSaid(said);
 ```
+
+`TraceSaid` logs whatever text has been collected as a single `[Agent]` line and clears the buffer. It runs when a tool call interrupts the text, and once more after the loop, before `Task completed`.
 
 `CodingAgent`'s constructor gains an `ILoggerFactory loggerFactory` parameter, stores it for `Dispose()` to close alongside `_chatClient`, and builds `_agentLog` from it exactly as `TracingInvoker` builds its own two loggers.
 
@@ -191,7 +196,7 @@ MAF's own built-in logging, from a real `ChatClientAgent` given the same `ILogge
 [Microsoft.Agents.AI.ChatClientAgent] [RunStreamingAsync] Agent 3f3c9bec6ad54e23858892773a8b536c/MiniCode Invoked client ScriptedChatClient.
 ```
 
-What `RunStreamingAsync` logs under `[Agent]` for the model's own text, shown here through the same logger `CodingAgent` builds:
+What `RunStreamingAsync` logs under `[Agent]` for the model's own text, shown here through the same logger `CodingAgent` builds. However many fragments the answer streams in, it is traced as one line:
 
 ```text
 [Agent] Task started

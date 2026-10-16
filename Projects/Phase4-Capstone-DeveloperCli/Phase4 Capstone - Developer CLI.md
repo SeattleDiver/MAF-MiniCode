@@ -26,7 +26,7 @@ Nothing new. No package, no environment variable, no project. Every change is to
 
 **Seam two: half of what MiniCode does was never traced.** Module 17 instrumented `RunStreamingAsync`, which was the whole story when it was written. Module 16b then added `/plan` and `/review` — genuine model calls that bypass that method entirely. `TracingInvoker` still logs the tools they use, so `/review` shows its `git_diff`; what is missing is any `[Agent]` line saying why the tool ran. Module 16b shipped before Module 17 and Module 17 only knew about the streaming loop, so neither could see it.
 
-**Seam three: two ways of reading an environment variable, in one file.** Module 18 added `MINICODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking the provider for a model named `""`. It left the key check after the provider `switch` exactly as Module 2b wrote it: `apiKey is null`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
+**Seam three: two ways of reading an environment variable, in one file.** Module 18 added `MINI_CODE_MODEL` with `is { Length: > 0 }` and said why — an exported-but-empty variable means "unset", and nobody should be asking the provider for a model named `""`. It left the key check after the provider `switch` exactly as Module 2b wrote it: `apiKey is null`, which catches only null. So the reasoning Module 18 applied to the new variable was never applied to the old one, and `OPENAI_API_KEY=` skipped the friendly message and reached `OpenAIClient`, which threw an unhandled `ArgumentException` and a stack trace. Packaging is what exposed it — an installed tool gets run from shells that export empty variables.
 
 **The trace format constrains how a failure is logged.** `BracketLoggerProvider` writes `formatter(state, exception)`, and the default formatter renders only the message template — an exception passed as the `LogError` exception argument never reaches the output. So the exception *type* has to be in the template, or the trace says `Task failed` and nothing more.
 
@@ -67,6 +67,7 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
         _guard.Reset();
         _usedTokens += TokenEstimator.Estimate(request);
         _agentLog.LogInformation("Task started");
+        var said = new StringBuilder();
 
         // C# forbids `yield return` inside a try that has a catch, so the loop
         // drives the enumerator by hand: the try covers only the move, and every
@@ -91,6 +92,7 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
             {
                 // Ctrl+C is a decision, not a fault. Rethrowing is what leaves
                 // InteractiveCommandLoop's "Cancelled." message intact.
+                TraceSaid(said);
                 _agentLog.LogInformation("Task cancelled");
                 throw;
             }
@@ -98,6 +100,7 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
             {
                 // BracketLogger renders only the message template, so the exception
                 // type has to be in the template to reach the trace at all.
+                TraceSaid(said);
                 _agentLog.LogError("Task failed: {Type}: {Message}", ex.GetType().Name, ex.Message);
                 throw;
             }
@@ -107,13 +110,15 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
 
             if (fragment.Length > 0)
             {
-                // TracingInvoker logs every tool call already, so only the model's
-                // own words are traced here — logging the tool announcement below
-                // too would report the same call under two different categories.
-                _agentLog.LogInformation("{Text}", fragment.Trim());
+                // The model's words arrive a few characters per update, so they are
+                // collected and traced as one line rather than one line per fragment.
+                // TracingInvoker logs every tool call already, so only words are traced.
+                said.Append(fragment);
                 yield return fragment;
                 continue;
             }
+
+            TraceSaid(said);
 
             // A tool-only update has no TextContent for ToString() to show, so the
             // operator would otherwise watch nothing happen for as long as the call
@@ -125,6 +130,7 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
             }
         }
 
+        TraceSaid(said);
         _agentLog.LogInformation("Task completed");
         if (_budget.ShouldCompact(_usedTokens))
         {
@@ -132,6 +138,8 @@ Seam one, the streaming loop in `src/MiniCode.Agent/CodingAgent.cs`:
         }
     }
 ```
+
+`TraceSaid` writes the text collected so far as one `[Agent]` line. Calling it in both `catch` blocks means the trace keeps whatever the model said before the stream died.
 
 Seam two, also in `src/MiniCode.Agent/CodingAgent.cs` — the two model calls that were never traced:
 

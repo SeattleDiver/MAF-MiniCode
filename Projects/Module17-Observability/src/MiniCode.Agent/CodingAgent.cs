@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -72,6 +73,7 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
         _guard.Reset();
         _usedTokens += TokenEstimator.Estimate(request);
         _agentLog.LogInformation("Task started");
+        var said = new StringBuilder();
 
         await foreach (AgentResponseUpdate update in
             _agent.RunStreamingAsync(request, _session, cancellationToken: cancellationToken))
@@ -81,13 +83,15 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
 
             if (fragment.Length > 0)
             {
-                // TracingInvoker logs every tool call already, so only the model's
-                // own words are traced here — logging the tool announcement below
-                // too would report the same call under two different categories.
-                _agentLog.LogInformation("{Text}", fragment.Trim());
+                // The model's words arrive a few characters per update, so they are
+                // collected and traced as one line rather than one line per fragment.
+                // TracingInvoker logs every tool call already, so only words are traced.
+                said.Append(fragment);
                 yield return fragment;
                 continue;
             }
+
+            TraceSaid(said);
 
             // A tool-only update has no TextContent for ToString() to show, so the
             // operator would otherwise watch nothing happen for as long as the call
@@ -99,6 +103,7 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
             }
         }
 
+        TraceSaid(said);
         _agentLog.LogInformation("Task completed");
         if (_budget.ShouldCompact(_usedTokens))
         {
@@ -154,6 +159,15 @@ public sealed class CodingAgent : ICodingAgent, IDisposable
             FunctionResultContent result => result.Result?.ToString(),
             _ => null,
         }));
+
+    private void TraceSaid(StringBuilder said)
+    {
+        if (said.Length > 0)
+        {
+            _agentLog.LogInformation("{Text}", said.ToString().Trim());
+            said.Clear();
+        }
+    }
 
     private static string DescribeToolCalls(AgentResponseUpdate update) =>
         string.Concat(update.Contents.OfType<FunctionCallContent>()
